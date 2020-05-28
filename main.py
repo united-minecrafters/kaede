@@ -1,11 +1,10 @@
-from discord.ext import commands
-import re
-import random
 import logging
 import os
-import discord
-import sqlite3
+import random
+import re
 
+import discord
+from discord.ext import commands
 
 logging.basicConfig(level=logging.WARN)
 
@@ -32,6 +31,7 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.do_not_disturb, activity=discord.Game(name="Hello :)"))
     print("Bot ready!")
 
+
 @bot.event
 async def on_message(message: discord.Message):
     if message.author.bot:
@@ -42,12 +42,14 @@ async def on_message(message: discord.Message):
     if re.findall(anti_misfit_regex, message.content.lower(), re.MULTILINE).__len__() != 0:
         await message.delete()
         await message.channel.send("No screeching please.")
-    hello_regex = r"^\s*(?:hi|hiya|hi there|hello|hei|hola|hey),?\s*(?:[Kk]aede|<@!" + str(bot.user.id) + ">)[!\.]*\s*$"
+    hello_regex = rf"^\s*(?:hi|hiya|hi there|hello|hei|hola|hey),?\s*(?:[Kk]aede|<@!{str(bot.user.id)}>)[!\.]*\s*$"
     if message.content == "<@!" + str(bot.user.id) + ">":
         await message.channel.send(random.choice("I'm alive!,Hm?,Yea? :3,:D,That's me!".split(",")))
-    if re.findall(hello_regex, message.content.lower(), re.MULTILINE).__len__() != 0:   
+    if re.findall(hello_regex, message.content.lower(), re.MULTILINE).__len__() != 0:
         await message.channel.send(random.choice(["Hi, " + message.author.mention + " :3",
                                                   "Hey, " + message.author.display_name,
+                                                  "Hi, " + message.author.display_name + " :3",
+                                                  "Hey, " + message.author.mention,
                                                   "Hello :D"]))
         return
     if message.content == "(╯°□°）╯︵ ┻━┻":
@@ -59,5 +61,6 @@ async def on_message(message: discord.Message):
                 "Stoppppppppp"
             ]))
     await bot.process_commands(message)
+
 
 bot.run(os.getenv("KAEDE"))

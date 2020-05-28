@@ -1,5 +1,5 @@
 from discord.ext import commands, tasks
-import discord
+
 
 class UnitedMC(commands.Cog):
     def __init__(self, bot: commands.Bot):
