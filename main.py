@@ -36,8 +36,8 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
-    if message.content.lower() == "bruh" and message.author.id == 534419428368973835:
-        await message.channel.send("Shut up")
+    anti_misfit_regex = r"\s*s\s*c\s*r\s*[e3]+\s*(ch)?\s*"
+    if re.findall(anti_misfit_regex, re.sub("[*.+?]", "", message.content.lower()), re.MULTILINE).__len__() != 0:
         await message.delete()
         await message.channel.send("No screeching please.", delete_after=30)
     hello_regex = rf"^\s*(?:hi|hiya|hi there|hello|hei|hola|hey),?\s*(?:[Kk]aede|<@!{str(bot.user.id)}>)[!\.]*\s*$"
