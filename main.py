@@ -5,6 +5,7 @@ import re
 
 import discord
 from discord.ext import commands
+from libs import utils
 
 logging.basicConfig(level=logging.WARN)
 
@@ -52,13 +53,19 @@ async def on_message(message: discord.Message):
                                                   "Hey, " + message.author.mention,
                                                   "Hello :D"]))
         return
+    if any([s in message.content for s in ["<:cutie:718656585211314298>", "<:cutie:716094809680379947>"]]):
+        await message.add_reaction(utils.letter_emoji("M"))
+        await message.add_reaction(utils.letter_emoji("E"))
+        await message.add_reaction("\u2755")
+        await message.add_reaction([e for e in message.guild.emojis if e.id == 715315690105733234][0])
     if message.content == "(╯°□°）╯︵ ┻━┻":
         await message.channel.send("┬─┬ ノ( ゜-゜ノ)")
         if random.randint(1, 10) == 1:
             await message.channel.send(random.choice([
                 "You could have hurt someone ):",
                 "Put it back!",
-                "Stoppppppppp"
+                "Stoppppppppp",
+                "***NO***"
             ]))
     await bot.process_commands(message)
 
