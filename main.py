@@ -19,7 +19,9 @@ def get_prefix(bot, message):
 bot = commands.Bot(command_prefix=get_prefix)
 bot.remove_command('help')
 
-initial_extensions = ["cogs.search", "cogs.unitedmc"]
+initial_extensions = ["cogs.search",
+                      "cogs.unitedmc",
+                      "cogs.administration"]
 if __name__ == '__main__':
     for ext in initial_extensions:
         print("= Adding " + ext + " =")
