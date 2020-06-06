@@ -1,6 +1,5 @@
 import asyncio
 import json
-import socket
 from typing import Dict
 
 import discord
@@ -26,11 +25,12 @@ class UnitedMC(commands.Cog):
                               description="Do `!server servername` to check a server")
         for name, server in self.servers.items():
             embed.add_field(name=name,
-                            value=f"**Address**: {server['address']}\n"
-                                  f"**IP:Port**: {server['ip']}:{server['port']}\n"
-                                  f"**Software**: {server['version']}\n" +
-                                  ("Whitelisted" if "whitelist" in server and server["whitelist"] else "Public") +
-                                  (", RCON" if "rcon" in server.keys() else "") +
+                            value=f":envelope: **Address**: {server['address']}\n"
+                                  f":envelope: **IP:Port**: {server['ip']}:{server['port']}\n"
+                                  f":gear:**Software**: {server['version']}\n" +
+                                  (f":white_check_mark:**Requirements**: {server['requirements']}\n" if "requirements" in server else "") +
+                                  (":lock: Whitelisted" if "whitelist" in server and server["whitelist"] else ":earth_americas: Public") +
+                                  (", :desktop: RCON" if "rcon" in server.keys() else "") +
                                   f", {server.get('mode', 'Survival').title()}",
                             inline=False
                             )
@@ -57,8 +57,8 @@ class UnitedMC(commands.Cog):
                 title=f"{server} - Error",
                 description=f"An error has occured. Is the server online?",
                 color=discord.Colour.red())
-                .set_footer(text="ConnectionRefusedError"),
-            )
+                           .set_footer(text="ConnectionRefusedError"),
+                           )
 
     @commands.command()
     async def send(self, ctx: commands.Context, server: str, *, cmd: str):
