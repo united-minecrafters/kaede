@@ -26,7 +26,8 @@ bot.remove_command('help')
 
 initial_extensions = ["cogs.search",
                       "cogs.unitedmc",
-                      "cogs.administration"]
+                      "cogs.administration",
+                      "cogs.filters"]
 if __name__ == '__main__':
     for ext in initial_extensions:
         print("= Adding " + ext + " =")
@@ -41,7 +42,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
-    if message.author.bot:
+    if message.author.bot or not message.guild:
         return
     anti_misfit_regex = r"\bs[kc]re+(?:ch)?\b"
     if re.findall(anti_misfit_regex, re.sub("[*.+?]", "", message.content.lower()), re.MULTILINE).__len__() != 0:
