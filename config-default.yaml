@@ -12,3 +12,70 @@ no-table-flip:
   - "Put it back!"
   - "Stoppppppppp"
   - "***NO***"
+
+filters:
+  word_watchlist:
+    - goo+ks*
+    - ky+s+
+    - ki+ke+s*
+    - beaner+s?
+    - coo+ns*
+    - nig+lets*
+    - slant-eyes*
+    - towe?l-?head+s*
+    - chi*n+k+s*
+    - spick*s*
+    - kill* +(?:yo)?urself+
+    - jew+s*
+    - (re+)tar+(d+|t+)(ed)?
+    - ta+r+d+
+    - cunts*
+    - trann*y
+
+  token_watchlist:
+    - fa+g+s*
+    - cuck(?!oo+)
+    - nigg+(?:e*r+|a+h*?|u+h+)s?
+    - fag+o+t+s*
+
+  domain_blacklist:
+    - pornhub.com
+    - liveleak.com
+    - grabify.link
+    - bmwforum.co
+    - leancoding.co
+    - spottyfly.com
+    - stopify.co
+    - yoütu.be
+    - discörd.com
+    - minecräft.com
+    - freegiftcards.co
+    - disçordapp.com
+    - fortnight.space
+    - fortnitechat.site
+    - joinmy.site
+    - curiouscat.club
+    - catsnthings.fun
+    - yourtube.site
+    - youtubeshort.watch
+    - catsnthing.com
+    - youtubeshort.pro
+    - canadianlumberjacks.online
+    - poweredbydialup.club
+    - poweredbydialup.online
+    - poweredbysecurity.org
+    - poweredbysecurity.online
+    - ssteam.site
+    - steamwalletgift.com
+    - discord.gift
+
+  role_whitelist:
+    - 599975980492259328 # owner
+    - 586236301355909123 # admin
+    - 599976133781356565 # moderator
+    - 608784604588933130 # jr mod
+
+  guild_invite_whitelist:
+    - 586199960198971409 # united
+    - 673045897172746260 # autumn
+    - 523136895245615124 # sturdy
