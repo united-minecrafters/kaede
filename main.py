@@ -4,14 +4,18 @@ import random
 import re
 
 import discord
+import dotenv
 from discord.ext import commands
+
 from libs import utils
+from libs.config import config
 
 logging.basicConfig(level=logging.WARN)
+dotenv.load_dotenv()
 
 
 def get_prefix(bot, message):
-    prefixes = ['!']
+    prefixes = config["prefixes"]
     if not message.guild:
         return '!'
     return commands.when_mentioned_or(*prefixes)(bot, message)
@@ -39,7 +43,7 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
-    anti_misfit_regex = r"\s*s\s*c\s*r\s*[e3]+\s*(ch)?\s*"
+    anti_misfit_regex = r"\bs[kc]re+(?:ch)?\b"
     if re.findall(anti_misfit_regex, re.sub("[*.+?]", "", message.content.lower()), re.MULTILINE).__len__() != 0:
         await message.delete()
         await message.channel.send("No screeching please.", delete_after=30)
@@ -53,7 +57,7 @@ async def on_message(message: discord.Message):
                                                   "Hey, " + message.author.mention,
                                                   "Hello :D"]))
         return
-    if any([s in message.content for s in ["<:cutie:718656585211314298>", "<:cutie:716094809680379947>"]]):
+    if any([s in message.content for s in config["kaedemojis"]]):
         await message.add_reaction(utils.letter_emoji("M"))
         await message.add_reaction(utils.letter_emoji("E"))
         await message.add_reaction("\u2755")
@@ -61,13 +65,8 @@ async def on_message(message: discord.Message):
     if message.content == "(╯°□°）╯︵ ┻━┻":
         await message.channel.send("┬─┬ ノ( ゜-゜ノ)")
         if random.randint(1, 10) == 1:
-            await message.channel.send(random.choice([
-                "You could have hurt someone ):",
-                "Put it back!",
-                "Stoppppppppp",
-                "***NO***"
-            ]))
+            await message.channel.send(random.choice(config["no-table-flip"]))
     await bot.process_commands(message)
 
 
-bot.run(os.getenv("KAEDE"))
+bot.run(os.getenv("TOKEN"))
