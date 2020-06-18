@@ -43,7 +43,7 @@ class Filter(commands.Cog):
                 pass
 
         for r in f["word_blacklist"]:
-            if re.match(rf"(?:^|[-\b]){r}([-\b$]|$)", content):
+            if re.search(rf"(?:-|\b){r}(?:-|\b)", content):
                 try:
                     await message.author.send(f"Hey, {message.author.mention}, your message was removed because of a "
                                               f"blacklisted word. If you feel this was a mistake, let staff know.")
@@ -56,7 +56,7 @@ class Filter(commands.Cog):
                 return
 
         for r in f["token_blacklist"]:
-            if re.match(fr"{r}", content):
+            if re.search(fr"{r}", content):
                 try:
                     await message.author.send(f"Hey, {message.author.mention}, your message was removed because of a "
                                               f"blacklisted word. If you feel this was a mistake, let staff know.")
