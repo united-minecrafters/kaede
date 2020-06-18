@@ -14,7 +14,7 @@ no-table-flip:
   - "***NO***"
 
 filters:
-  word_watchlist:
+  word_blacklist:
     - goo+ks*
     - ky+s+
     - ki+ke+s*
@@ -32,7 +32,7 @@ filters:
     - cunts*
     - trann*y
 
-  token_watchlist:
+  token_blacklist:
     - fa+g+s*
     - cuck(?!oo+)
     - nigg+(?:e*r+|a+h*?|u+h+)s?
