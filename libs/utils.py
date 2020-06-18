@@ -8,3 +8,6 @@ def letter_emoji(a: str):
 
 def quote(st: str):
     return "\n".join(f"> {n}" for n in st.split("\n"))
+
+
+def cond_trim(st: str): return st if len(st) < 300 else st[:300]

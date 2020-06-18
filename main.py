@@ -10,7 +10,8 @@ from discord.ext import commands
 from libs import utils
 from libs.config import config
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s",
+                    datefmt="%m/%d/%Y %H:%M:%S")
 dotenv.load_dotenv()
 
 
@@ -27,17 +28,18 @@ bot.remove_command('help')
 initial_extensions = ["cogs.search",
                       "cogs.unitedmc",
                       "cogs.administration",
-                      "cogs.filters"]
+                      "cogs.filters",
+                      "cogs.modlog"]
 if __name__ == '__main__':
     for ext in initial_extensions:
-        print("= Adding " + ext + " =")
+        logging.info(f"[BOT] Loading {ext}")
         bot.load_extension(ext)
 
 
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.do_not_disturb, activity=discord.Game(name="Hello :)"))
-    print("Bot ready!")
+    logging.info(f"[BOT] Kaede online!")
 
 
 @bot.event
