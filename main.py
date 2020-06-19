@@ -10,7 +10,10 @@ from discord.ext import commands
 from libs import utils
 from libs.config import config
 
-logging.basicConfig(level=logging.WARN)
+logging.addLevelName((logging.DEBUG + logging.INFO)//2, "DEBUG2")
+
+logging.basicConfig(level=logging.getLevelName("DEBUG2"), format="%(asctime)-15s %(message)s",
+                    datefmt="%m/%d/%Y %H:%M:%S")
 dotenv.load_dotenv()
 
 
@@ -26,22 +29,25 @@ bot.remove_command('help')
 
 initial_extensions = ["cogs.search",
                       "cogs.unitedmc",
-                      "cogs.administration"]
+                      "cogs.administration",
+                      "cogs.filters",
+                      "cogs.modlog",
+                      "cogs.moderation"]
 if __name__ == '__main__':
     for ext in initial_extensions:
-        print("= Adding " + ext + " =")
+        logging.info(f"[BOT] Loading {ext}")
         bot.load_extension(ext)
 
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(status=discord.Status.do_not_disturb, activity=discord.Game(name="Hello :)"))
-    print("Bot ready!")
+    await bot.change_presence(status=discord.Status.do_not_disturb, activity=discord.Game(name="Hey there!"))
+    logging.info(f"[BOT] Kaede online!")
 
 
 @bot.event
 async def on_message(message: discord.Message):
-    if message.author.bot:
+    if message.author.bot or not message.guild:
         return
     anti_misfit_regex = r"\bs[kc]re+(?:ch)?\b"
     if re.findall(anti_misfit_regex, re.sub("[*.+?]", "", message.content.lower()), re.MULTILINE).__len__() != 0:

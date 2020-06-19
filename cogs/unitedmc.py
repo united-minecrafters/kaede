@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from typing import Dict
 
 import discord
@@ -11,7 +12,7 @@ from libs.mcrcon import MinecraftClient
 class UnitedMC(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        print(" - Loading Server list")
+        logging.info(f"[UNITED] Loading server list")
         self.servers = {}
         self._load_server_list()
 
@@ -105,13 +106,15 @@ class UnitedMC(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def reloadservers(self, ctx: commands.Context):
-        await ctx.send("Reloading server config...")
+        await ctx.send("Reoading server config...")
         self._load_server_list()
         await ctx.send("Server config reloaded! :D")
 
     def _load_server_list(self):
+        logging.info("[SVR] Loading server config...")
         with open("servers.json") as js:
             self.servers = json.load(js)
+        logging.info("Server config loaded! :D")
 
 
 def setup(bot):
