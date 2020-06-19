@@ -1,4 +1,78 @@
 ---
+
+channels:
+  # info
+  greeting:                       599974490662764545
+  updates:                        600017035740839986
+  rules:                          600014362719158297
+  roles:                          603028701730308135
+  polls:                          605457435288797248
+  suggestions:                    599977968504274964
+  mcupdates:                      637001831687520275
+  unverified:                     691510005664448552
+
+  #no mic
+  overworld_nomic:   &OWNM        605531161841762429
+  nether_nomic:      &NTNM        608395921687838741
+  blaze_nomic:       &BZNM        605530852805443585
+  zombie_nomic:      &ZMNM        605530918802948129
+  ghast_nomic:       &GHNM        605531549626007555
+
+  # general
+  intro:                          669604332311937074
+  starboard:                      694457589831827457
+  bump:                           599973522143445022
+  xchat:                          643519468928237568
+  general:                        586199960198971418
+  looking:                        682331164567928846
+  degeneracy:                     692082377740124181
+  movie:                          700812979586728037
+  chatterboxes:                   707693664733888664
+
+  # servers
+  bedrocksvr:                     616003690616061963
+  javasvr:                        682330791660748810
+
+  # media
+  showcase:                       601927482270023682
+  art:                            611182729215606785
+  photography:                    611182891770314762
+  advertising:                    600351761324310538
+  selfiesirl:                     611185362454315018
+  pets:                           618258886205636639
+  mediadump:                      606306207942180924
+  memes:                          617273148391424010
+
+  # bot stuff
+  jukebox:      605934083872129117
+  botspam:      599975909562253322
+
+  # admin
+  admin:        600016557082673162
+  staff:        600016613491736585
+  kaede:        715789040686727180
+  modlog:       608069216532168706
+  log:          599972200052817951
+  adminbotspam: 599966604805275660
+
+  vcpairs:
+    -
+      vc: 586199960198971428
+      ch: *OWNM
+    -
+      vc: 600666074295304193
+      ch: *BZNM
+    -
+      vc: 605531394155872262
+      ch: *GHNM
+    -
+      vc: 600483587967549443
+      ch: *ZMNM
+    -
+      vc: 608395638823976980
+      ch: *NTNM
+
+
 prefixes:
   - "!"
   - "hey, kaede "
@@ -81,11 +155,6 @@ filters:
     - 673045897172746260 # autumn
     - 523136895245615124 # sturdy
 
-
-channels:
-  modlog: 608069216532168706
-  log: 599972200052817951
-  adminbotspam: 599966604805275660
 
 logging:
   ignore_del_prefix:
