@@ -44,37 +44,40 @@ channels:
   memes:                          617273148391424010
 
   # bot stuff
-  jukebox:      605934083872129117
-  botspam:      599975909562253322
+  jukebox:                        605934083872129117
+  botspam:                        599975909562253322
 
   # admin
-  admin:        600016557082673162
-  staff:        600016613491736585
-  kaede:        715789040686727180
-  modlog:       608069216532168706
-  log:          599972200052817951
-  adminbotspam: 599966604805275660
+  admin:           &ADMIN         600016557082673162
+  staff:           &STAFF         600016613491736585
+  kaede:           &KAEDE         715789040686727180
+  modlog:                         608069216532168706
+  log:                            599972200052817951
+  adminbotspam:    &ADMIN_BOT     599966604805275660
 
   vcpairs:
-    -
-      vc: 586199960198971428
+    - vc: 586199960198971428
       ch: *OWNM
-    -
-      vc: 600666074295304193
+    - vc: 600666074295304193
       ch: *BZNM
-    -
-      vc: 605531394155872262
+    - vc: 605531394155872262
       ch: *GHNM
-    -
-      vc: 600483587967549443
+    - vc: 600483587967549443
       ch: *ZMNM
-    -
-      vc: 608395638823976980
+    - vc: 608395638823976980
       ch: *NTNM
 
+roles:
+  staff:    &STAFF_ROLE      608403610551713880
+  owner:    &OWNER_ROLE      586236301355909123
+  admin:    &ADMIN_ROLE      599975980492259328
+  mod:      &MOD_ROLE        599976133781356565
+  jr_mod:   &JR_MOD_ROLE     608784604588933130
+  booster:                   669584239301492748
+  muted:    &MUTED_ROLE      599966894069514251
 
 prefixes:
-  - "!"
+  - &KAEDE_PREFIX "!"
   - "hey, kaede "
 
 kaedemojis:
@@ -88,6 +91,11 @@ no-table-flip:
   - "***NO***"
 
 filters:
+  channel_whitelist:
+    - *ADMIN
+    - *ADMIN_BOT
+    - *KAEDE
+    - *STAFF
   word_blacklist:
     - goo+ks*
     - ky+s+
@@ -145,10 +153,11 @@ filters:
     - discord.gift
 
   role_whitelist:
-    - 599975980492259328 # owner
-    - 586236301355909123 # admin
-    - 599976133781356565 # moderator
-    - 608784604588933130 # jr mod
+    - *OWNER_ROLE
+    - *ADMIN_ROLE
+    - *JR_MOD_ROLE
+    - *MOD_ROLE
+    - *STAFF_ROLE
 
   guild_invite_whitelist:
     - 586199960198971409 # united
@@ -160,8 +169,6 @@ logging:
   ignore_del_prefix:
     - "." # nadeko
     - "%" # ansura
-    - "!" # kaede
+    - *KAEDE_PREFIX
   ignore_bot: 1
 
-roles:
-  staff: 608403610551713880
