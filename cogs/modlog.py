@@ -38,7 +38,7 @@ class ModLog(commands.Cog):
                 .add_field(name="Before", value=cond_trim(before.content))  # noqa 141
                 .add_field(name="After", value=cond_trim(after.content))
         )
-        logging.log(15, f"[MODLOG | EDIT] {msg.id}\n---\n{quote(after.content)}\n---\n{quote(after.content)}")
+        logging.log(15, f"[MODLOG | EDIT] {msg.id}\n---\n{quote(before.content)}\n---\n{quote(after.content)}")
 
     async def log_filter(self, flt: str, message: discord.Message):
         msg = await self.logchannel.send(
@@ -89,6 +89,26 @@ class ModLog(commands.Cog):
                 .add_field(name="Joined Discord", value=member.created_at.isoformat(), inline=False)
         )
         logging.log(15, f"[MODLOG | USER] {msg.id} U:{member.id} JOIN:{join}")
+
+    async def log_kick_action(self, member: Union[discord.Member, discord.User], *,
+                              silent: bool = False, reason: str = None, staff: discord.Member = None):
+        if not silent:
+            await self.modchannel.send(
+                embed=discord.Embed(
+                    title=f"User Kicked",
+                    description=f"{member} | <@!{member.id}>\n",
+                    colour=discord.Colour.orange()
+                )
+            )
+        await self.logchannel.send(
+            embed=discord.Embed(
+                title=f"User Kicked",
+                description=f"{member} | <@!{member.id}>",
+                colour=discord.Colour.orange()
+            )
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
+        )
 
     async def log_ban_action(self, member: Union[discord.Member, discord.User], *,
                              soft: bool = False, silent: bool = False, reason: str = None,
