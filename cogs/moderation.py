@@ -1,10 +1,36 @@
+import logging
 from typing import Optional, Union
 
 import discord
 from discord.ext import commands
-import logging
-import cogs
 
+import cogs
+from libs.config import config
+from libs.utils import trash_reaction, NBSP
+
+MOD_HELP_STR = f"""
+**kick**
+> `!kick @member|ID [reason]`
+> Requires `kick_members` permission
+> Silent version - `!skick`
+_ _
+**ban**
+> `!ban @member|ID [reason]`
+> Requires `ban_members` permission
+> Silent version - `!sban`
+_ _
+**softban**
+> `!softban @member|ID [reason]`
+> Requires `kick_members` permission
+> Bans a member, deleting their messages from the last 7 days
+> Silent
+_ _
+`[]` signifies an *optional* parameter
+`|` signifies one OR the other
+_ _
+Non-silent mod logs go to <#{config["channels"]["log"]}> with basic info
+All mod logs go to <#{config["channels"]["modlog"]}> with detailed info
+"""
 
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -90,6 +116,16 @@ class Moderation(commands.Cog):
         await member.unban(reason=f"{ctx.author} | Soft Ban")
         await self.modlog.log_ban_action(member, soft=True, silent=True, staff=ctx.author, reason=reason)
 
+    @commands.command()
+    @commands.has_role(config["roles"]["staff"])
+    async def modhelp(self, ctx: commands.Context):
+        msg: discord.Message = await ctx.send(
+            embed=discord.Embed(
+                title="United Minecrafters Moderation Commands",
+                description=MOD_HELP_STR
+            )
+        )
+        await trash_reaction(msg, self.bot, ctx)
 
 def setup(bot: commands.Bot) -> None:
     bot.add_cog(Moderation(bot))

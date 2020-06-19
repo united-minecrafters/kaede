@@ -31,6 +31,7 @@ filters:
     - ta+r+d+
     - cunts*
     - trann*y
+    - fuck(?:er)?
 
   token_blacklist:
     - fa+g+s*
@@ -80,6 +81,18 @@ filters:
     - 673045897172746260 # autumn
     - 523136895245615124 # sturdy
 
+
 channels:
   modlog: 608069216532168706
   log: 599972200052817951
+  adminbotspam: 599966604805275660
+
+logging:
+  ignore_del_prefix:
+    - "." # nadeko
+    - "%" # ansura
+    - "!" # kaede
+  ignore_bot: 1
+
+roles:
+  staff: 608403610551713880
