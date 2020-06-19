@@ -1,5 +1,4 @@
 ---
-
 channels:
   # info
   greeting:                       599974490662764545
@@ -164,11 +163,9 @@ filters:
     - 673045897172746260 # autumn
     - 523136895245615124 # sturdy
 
-
 logging:
   ignore_del_prefix:
     - "." # nadeko
     - "%" # ansura
     - *KAEDE_PREFIX
   ignore_bot: 1
-
