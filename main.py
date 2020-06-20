@@ -32,6 +32,7 @@ initial_extensions = ["cogs.search",
                       "cogs.administration",
                       "cogs.filters",
                       "cogs.modlog",
+                      "cogs.kaede",
                       "cogs.moderation"]
 if __name__ == '__main__':
     for ext in initial_extensions:
