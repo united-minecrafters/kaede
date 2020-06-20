@@ -76,6 +76,7 @@ class Kaede(commands.Cog):
     async def delstatus(self, ctx, n: int):
         if len(config()["statuses"]) == 1:
             await ctx.send("Can't delete only status, do `!resetstatus`")
+            return
         if n < 0 or n >= len(config()["statuses"]):
             await ctx.send("Invalid index, do `!liststatus`")
             return
