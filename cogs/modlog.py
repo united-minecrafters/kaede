@@ -27,6 +27,15 @@ class ModLog(commands.Cog):
         self.modchannel = self.bot.get_channel(config["channels"]["modlog"])
         logging.info("[MODLOG] Ready")
 
+    async def log_message(self, author: discord.Member, title: str, message: str):
+        await self.logchannel.send(
+            embed=discord.Embed(
+                title=title,
+                description=message,
+                colour=0x00ffff
+            ).set_author(name=f"{author} | {author.id}")
+        )
+
     async def log_edit(self, before: discord.Message, after: discord.Message):
         msg = await self.logchannel.send(
             embed=discord.Embed(
