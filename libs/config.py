@@ -1,4 +1,16 @@
-import yaml
+from ruamel.yaml import YAML
 
-with open("config.yaml") as fp:
-    config = yaml.safe_load(fp)
+config = None
+yaml = YAML()
+
+def reload_config():
+    global config
+    with open("config.yaml") as fp:
+        config = yaml.load(fp)
+
+
+def save_config():
+    with open("config.yaml", "w") as fp:
+        yaml.dump(config, fp)
+
+reload_config()
