@@ -5,9 +5,11 @@ from typing import Optional
 import discord
 from discord.ext import commands
 
-from libs.config import config
-from libs.utils import quote
+from libs.config import config, save_config
+from libs.utils import numbered, quote, pages
 import cogs.modlog
+
+from disputils import BotConfirmation, BotEmbedPaginator
 
 url_regex = re.compile(r"(https?://[^\s]+)")
 
@@ -23,6 +25,96 @@ class Filter(commands.Cog):
         await self.bot.wait_until_ready()
         self.modlog = self.bot.get_cog("ModLog")
         logging.info("[FILTER] Ready")
+
+    @commands.command(aliases=["lfw"])
+    async def listfilteredwords(self, ctx: commands.Context):
+        await BotEmbedPaginator(ctx, pages(numbered(config["filters"]["word_blacklist"]), 10, "Filtered Words")).run()
+
+    @commands.command(aliases=["lft"])
+    @commands.has_role(config["roles"]["staff"])
+    async def listfilteredtoken(self, ctx: commands.Context):
+        await BotEmbedPaginator(ctx, pages(numbered(config["filters"]["token_blacklist"]), 10, "Filtered Tokens")).run()
+
+    @commands.command(aliases=["dfw"])
+    @commands.has_role(config["roles"]["staff"])
+    async def delfilteredword(self, ctx: commands.Context, n: int):
+        if n < 0 or n >= len(config["filters"]["word_blacklist"]):
+            await ctx.send("Invalid number - do `!lfw` to view")
+        conf = BotConfirmation(ctx, 0x5555ff)
+        await conf.confirm(f'Delete `{config["filters"]["word_blacklist"][n]}`?')
+
+        if conf.confirmed:
+            try:
+                s = config["filters"]["word_blacklist"][n]
+                del config["filters"]["word_blacklist"][n]
+                save_config()
+            except Exception as e: # noqa e722
+                await conf.update("An error occurred", color=0xffff00)
+            else:
+                await conf.update("Deleted!", color=0x55ff55)
+                await self.modlog.log_message(ctx.author, "Filter Word Modification", f"```diff\n - {s}```")
+        else:
+            await conf.update("Canceled", color=0xff5555)
+
+    @commands.command(aliases=["dft"])
+    @commands.has_role(config["roles"]["staff"])
+    async def delfilteredtoken(self, ctx: commands.Context, n: int):
+        if n < 0 or n >= len(config["filters"]["token_blacklist"]):
+            await ctx.send("Invalid number - do `!lfw` to view")
+        conf = BotConfirmation(ctx, 0x5555ff)
+        await conf.confirm(f'Delete `{config["filters"]["token_blacklist"][n]}`?')
+
+        if conf.confirmed:
+            try:
+                s = config["filters"]["token_blacklist"][n]
+                del config["filters"]["token_blacklist"][n]
+                save_config()
+            except Exception as e: # noqa e722
+                await conf.update("An error occurred", color=0xffff00)
+            else:
+                await conf.update("Deleted!", color=0x55ff55)
+                await self.modlog.log_message(ctx.author, "Filter Token Modification", f"```diff\n - {s}```")
+        else:
+            await conf.update("Canceled", color=0xff5555)
+
+    @commands.command(aliases=["ft", "aft"])
+    @commands.has_role(config["roles"]["staff"])
+    async def addfilteredtoken(self, ctx: commands.Context, *, w: str):
+        w = w.strip("` ")
+        conf = BotConfirmation(ctx, 0x5555ff)
+        await conf.confirm(f'Add `{w}`?')
+
+        if conf.confirmed:
+            try:
+                config["filters"]["token_blacklist"].append(w)
+                save_config()
+            except Exception as e: # noqa e722
+                await conf.update("An error occurred", color=0xffff00)
+            else:
+                await conf.update("Added!", color=0x55ff55)
+                await self.modlog.log_message(ctx.author, "Filter Token Modification", f"```diff\n + {w}```")
+        else:
+            await conf.update("Canceled", color=0xff5555)
+            
+    @commands.command(aliases=["fw", "afw"])
+    @commands.has_role(config["roles"]["staff"])
+    async def addfilteredword(self, ctx: commands.Context, *, w: str):
+        w = w.strip("` ")
+        conf = BotConfirmation(ctx, 0x5555ff)
+        await conf.confirm(f'Add `{w}`?')
+
+        if conf.confirmed:
+            try:
+                config["filters"]["word_blacklist"].append(w)
+                save_config()
+            except Exception as e: # noqa e722
+                await conf.update("An error occurred", color=0xffff00)
+            else:
+                await conf.update("Added!", color=0x55ff55)
+                await self.modlog.log_message(ctx.author, "Filter Word Modification", f"```diff\n + {w}```")
+        else:
+            await conf.update("Canceled", color=0xff5555)
+
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
