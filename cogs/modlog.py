@@ -23,8 +23,8 @@ class ModLog(commands.Cog):
     async def _init(self):
         logging.info("[MODLOG] Waiting for bot")
         await self.bot.wait_until_ready()
-        self.logchannel = self.bot.get_channel(config["channels"]["log"])
-        self.modchannel = self.bot.get_channel(config["channels"]["modlog"])
+        self.logchannel = self.bot.get_channel(config()["channels"]["log"])
+        self.modchannel = self.bot.get_channel(config()["channels"]["modlog"])
         logging.info("[MODLOG] Ready")
 
     async def log_message(self, author: discord.Member, title: str, message: str):
@@ -66,9 +66,9 @@ class ModLog(commands.Cog):
         if message.id in self.suppressed_deletion_messages:
             del self.suppressed_deletion_messages[self.suppressed_deletion_messages.index(message.id)]
             return
-        if config["logging"]["ignore_bot"] == 1 and message.author.bot:
+        if config()["logging"]["ignore_bot"] == 1 and message.author.bot:
             return
-        for i in config["logging"]["ignore_del_prefix"]:
+        for i in config()["logging"]["ignore_del_prefix"]:
             if message.content.startswith(i):
                 return
         msg = await self.logchannel.send(

@@ -10,7 +10,6 @@ from cogs.modlog import ModLog
 from libs.config import config, reload_config, save_config
 from libs.utils import numbered, pages
 
-
 class Kaede(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -21,14 +20,14 @@ class Kaede(commands.Cog):
     async def _init(self):
         logging.info("[KAEDE] Waiting for bot")
         await self.bot.wait_until_ready()
-        self.status = cycle(config["statuses"])
+        self.status = cycle(config()["statuses"])
         self.status_rotate.start()
         self.modlog = self.bot.get_cog("ModLog")
         await self.bot.change_presence(status=discord.Status.do_not_disturb,
                                        activity=discord.Game(name=self.status.__next__()))
         logging.info("[KAEDE] Ready")
 
-    @tasks.loop(seconds=config["status_cycle"])
+    @tasks.loop(seconds=config()["status_cycle"])
     async def status_rotate(self):
         await self.bot.change_presence(status=discord.Status.do_not_disturb,
                                        activity=discord.Game(name=self.status.__next__()))
@@ -40,7 +39,7 @@ class Kaede(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_completion(self, ctx: commands.Context):
-        if ctx.channel.id not in config["delete_exceptions"]:
+        if ctx.channel.id not in config()["delete_exceptions"]:
             try:
                 await ctx.message.delete()
             except discord.NotFound:
@@ -58,11 +57,11 @@ class Kaede(commands.Cog):
         await ctx.send("Reloading config...")
         try:
             reload_config()
-            self.status = cycle(config["statuses"])
-            self.status_rotate.change_interval(seconds=config["status_cycle"])
+            self.status = cycle(config()["statuses"])
+            self.status_rotate.change_interval(seconds=config()["status_cycle"])
             self.status_rotate.restart()
         except Exception as e: # noqa e722
-            await ctx.send("An error occured")
+            await ctx.send("An error occ ured")
             raise e
         else:
             await ctx.send("Config reloaded! :D")
@@ -70,25 +69,25 @@ class Kaede(commands.Cog):
     @commands.command(aliases=["lsst"])
     @commands.is_owner()
     async def liststatus(self, ctx):
-        await BotEmbedPaginator(ctx, pages(numbered(config["statuses"]), 10, "Statuses")).run()
+        await BotEmbedPaginator(ctx, pages(numbered(config()["statuses"]), 10, "Statuses")).run()
 
     @commands.command(aliases=["dlst"])
     @commands.is_owner()
     async def delstatus(self, ctx, n: int):
-        if len(config["statuses"]) == 1:
+        if len(config()["statuses"]) == 1:
             await ctx.send("Can't delete only status, do `!resetstatus`")
-        if n < 0 or n >= len(config["statuses"]):
+        if n < 0 or n >= len(config()["statuses"]):
             await ctx.send("Invalid index, do `!liststatus`")
             return
         conf = BotConfirmation(ctx, 0x5555ff)
-        await conf.confirm(f'Delete `{config["statuses"][n]}`?')
+        await conf.confirm(f'Delete `{config()["statuses"][n]}`?')
 
         if conf.confirmed:
             try:
-                s = config["statuses"][n]
-                del config["statuses"][n]
+                s = config()["statuses"][n]
+                del config()["statuses"][n]
                 save_config()
-                self.status = cycle(config["statuses"])
+                self.status = cycle(config()["statuses"])
                 self.status_rotate.restart()
             except Exception as e: # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
@@ -107,9 +106,9 @@ class Kaede(commands.Cog):
 
         if conf.confirmed:
             try:
-                config["statuses"].append(w)
+                config()["statuses"].append(w)
                 save_config()
-                self.status = cycle(config["statuses"])
+                self.status = cycle(config()["statuses"])
                 self.status_rotate.restart()
             except Exception as e: # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
@@ -127,9 +126,9 @@ class Kaede(commands.Cog):
 
         if conf.confirmed:
             try:
-                config["statuses"] = ["Hi"]
+                config()["statuses"] = ["Hi"]
                 save_config()
-                self.status = cycle(config["statuses"])
+                self.status = cycle(config()["statuses"])
                 self.status_rotate.restart()
             except Exception as e: # noqa e722
                 await conf.update("An error occurred", color=0xffff00)

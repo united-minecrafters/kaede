@@ -27,27 +27,27 @@ class Filter(commands.Cog):
         logging.info("[FILTER] Ready")
 
     @commands.command(aliases=["lfw"])
-    @commands.has_role(config["roles"]["staff"])
+    @commands.has_role(config()["roles"]["staff"])
     async def listfilteredwords(self, ctx: commands.Context):
-        await BotEmbedPaginator(ctx, pages(numbered(config["filters"]["word_blacklist"]), 10, "Filtered Words")).run()
+        await BotEmbedPaginator(ctx, pages(numbered(config()["filters"]["word_blacklist"]), 10, "Filtered Words")).run()
 
     @commands.command(aliases=["lft"])
-    @commands.has_role(config["roles"]["staff"])
+    @commands.has_role(config()["roles"]["staff"])
     async def listfilteredtoken(self, ctx: commands.Context):
-        await BotEmbedPaginator(ctx, pages(numbered(config["filters"]["token_blacklist"]), 10, "Filtered Tokens")).run()
+        await BotEmbedPaginator(ctx, pages(numbered(config()["filters"]["token_blacklist"]), 10, "Filtered Tokens")).run()
 
     @commands.command(aliases=["dfw"])
-    @commands.has_role(config["roles"]["staff"])
+    @commands.has_role(config()["roles"]["staff"])
     async def delfilteredword(self, ctx: commands.Context, n: int):
-        if n < 0 or n >= len(config["filters"]["word_blacklist"]):
+        if n < 0 or n >= len(config()["filters"]["word_blacklist"]):
             await ctx.send("Invalid number - do `!lfw` to view")
         conf = BotConfirmation(ctx, 0x5555ff)
-        await conf.confirm(f'Delete `{config["filters"]["word_blacklist"][n]}`?')
+        await conf.confirm(f'Delete `{config()["filters"]["word_blacklist"][n]}`?')
 
         if conf.confirmed:
             try:
-                s = config["filters"]["word_blacklist"][n]
-                del config["filters"]["word_blacklist"][n]
+                s = config()["filters"]["word_blacklist"][n]
+                del config()["filters"]["word_blacklist"][n]
                 save_config()
             except Exception as e: # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
@@ -58,17 +58,17 @@ class Filter(commands.Cog):
             await conf.update("Canceled", color=0xff5555)
 
     @commands.command(aliases=["dft"])
-    @commands.has_role(config["roles"]["staff"])
+    @commands.has_role(config()["roles"]["staff"])
     async def delfilteredtoken(self, ctx: commands.Context, n: int):
-        if n < 0 or n >= len(config["filters"]["token_blacklist"]):
+        if n < 0 or n >= len(config()["filters"]["token_blacklist"]):
             await ctx.send("Invalid number - do `!lfw` to view")
         conf = BotConfirmation(ctx, 0x5555ff)
-        await conf.confirm(f'Delete `{config["filters"]["token_blacklist"][n]}`?')
+        await conf.confirm(f'Delete `{config()["filters"]["token_blacklist"][n]}`?')
 
         if conf.confirmed:
             try:
-                s = config["filters"]["token_blacklist"][n]
-                del config["filters"]["token_blacklist"][n]
+                s = config()["filters"]["token_blacklist"][n]
+                del config()["filters"]["token_blacklist"][n]
                 save_config()
             except Exception as e: # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
@@ -79,7 +79,7 @@ class Filter(commands.Cog):
             await conf.update("Canceled", color=0xff5555)
 
     @commands.command(aliases=["ft", "aft"])
-    @commands.has_role(config["roles"]["staff"])
+    @commands.has_role(config()["roles"]["staff"])
     async def addfilteredtoken(self, ctx: commands.Context, *, w: str):
         w = w.strip("` ")
         conf = BotConfirmation(ctx, 0x5555ff)
@@ -87,7 +87,7 @@ class Filter(commands.Cog):
 
         if conf.confirmed:
             try:
-                config["filters"]["token_blacklist"].append(w)
+                config()["filters"]["token_blacklist"].append(w)
                 save_config()
             except Exception as e: # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
@@ -98,7 +98,7 @@ class Filter(commands.Cog):
             await conf.update("Canceled", color=0xff5555)
             
     @commands.command(aliases=["fw", "afw"])
-    @commands.has_role(config["roles"]["staff"])
+    @commands.has_role(config()["roles"]["staff"])
     async def addfilteredword(self, ctx: commands.Context, *, w: str):
         w = w.strip("` ")
         conf = BotConfirmation(ctx, 0x5555ff)
@@ -106,7 +106,7 @@ class Filter(commands.Cog):
 
         if conf.confirmed:
             try:
-                config["filters"]["word_blacklist"].append(w)
+                config()["filters"]["word_blacklist"].append(w)
                 save_config()
             except Exception as e: # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
@@ -128,7 +128,7 @@ class Filter(commands.Cog):
             return
         if not message.guild:
             return
-        f = config["filters"]
+        f = config()["filters"]
         content = message.content.lower()
 
         for r in f["role_whitelist"]:
