@@ -27,6 +27,7 @@ class Filter(commands.Cog):
         logging.info("[FILTER] Ready")
 
     @commands.command(aliases=["lfw"])
+    @commands.has_role(config["roles"]["staff"])
     async def listfilteredwords(self, ctx: commands.Context):
         await BotEmbedPaginator(ctx, pages(numbered(config["filters"]["word_blacklist"]), 10, "Filtered Words")).run()
 
