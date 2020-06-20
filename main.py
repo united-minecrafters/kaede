@@ -18,7 +18,7 @@ dotenv.load_dotenv()
 
 
 def get_prefix(bot, message):
-    prefixes = config["prefixes"]
+    prefixes = config()["prefixes"]
     if not message.guild:
         return '!'
     return commands.when_mentioned_or(*prefixes)(bot, message)
@@ -32,6 +32,7 @@ initial_extensions = ["cogs.search",
                       "cogs.administration",
                       "cogs.filters",
                       "cogs.modlog",
+                      "cogs.kaede",
                       "cogs.moderation"]
 if __name__ == '__main__':
     for ext in initial_extensions:
@@ -63,7 +64,7 @@ async def on_message(message: discord.Message):
                                                   "Hey, " + message.author.mention,
                                                   "Hello :D"]))
         return
-    if any([s in message.content for s in config["kaedemojis"]]):
+    if any([s in message.content for s in config()["kaedemojis"]]):
         await message.add_reaction(utils.letter_emoji("M"))
         await message.add_reaction(utils.letter_emoji("E"))
         await message.add_reaction("\u2755")
@@ -71,7 +72,7 @@ async def on_message(message: discord.Message):
     if message.content == "(╯°□°）╯︵ ┻━┻":
         await message.channel.send("┬─┬ ノ( ゜-゜ノ)")
         if random.randint(1, 10) == 1:
-            await message.channel.send(random.choice(config["no-table-flip"]))
+            await message.channel.send(random.choice(config()["no-table-flip"]))
     await bot.process_commands(message)
 
 

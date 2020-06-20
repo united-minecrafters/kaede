@@ -3,6 +3,8 @@ import ast
 import discord
 from discord.ext import commands
 
+from libs.config import config
+
 
 class Administration(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -10,7 +12,7 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def color(self, ctx: commands.Context, clr: discord.Color):
-        if 608403610551713880 not in [r.id for r in ctx.author.roles]:
+        if config["staff"] not in [r.id for r in ctx.author.roles]:
             await ctx.send("Um. *no you can't do that*")
             return
         m: discord.Member = ctx.author
@@ -23,7 +25,7 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def role(self, ctx: commands.Context, *, role: str):
-        if 608403610551713880 not in [r.id for r in ctx.author.roles]:
+        if config["staff"] not in [r.id for r in ctx.author.roles]:
             await ctx.send("Um. *no you can't do that*")
             return
         if len(role) > 32:

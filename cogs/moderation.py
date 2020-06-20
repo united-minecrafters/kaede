@@ -28,8 +28,8 @@ _ _
 `[]` signifies an *optional* parameter
 `|` signifies one OR the other
 _ _
-Non-silent mod logs go to <#{config["channels"]["log"]}> with basic info
-All mod logs go to <#{config["channels"]["modlog"]}> with detailed info
+Non-silent mod logs go to <#{config()["channels"]["log"]}> with basic info
+All mod logs go to <#{config()["channels"]["modlog"]}> with detailed info
 """
 
 class Moderation(commands.Cog):
@@ -117,7 +117,7 @@ class Moderation(commands.Cog):
         await self.modlog.log_ban_action(member, soft=True, silent=True, staff=ctx.author, reason=reason)
 
     @commands.command()
-    @commands.has_role(config["roles"]["staff"])
+    @commands.has_role(config()["roles"]["staff"])
     async def modhelp(self, ctx: commands.Context):
         msg: discord.Message = await ctx.send(
             embed=discord.Embed(
