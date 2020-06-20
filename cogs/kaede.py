@@ -59,6 +59,7 @@ class Kaede(commands.Cog):
         try:
             reload_config()
             self.status = cycle(config["statuses"])
+            self.status_rotate.change_interval(seconds=config["status_cycle"])
             self.status_rotate.restart()
         except Exception as e: # noqa e722
             await ctx.send("An error occured")
@@ -66,12 +67,12 @@ class Kaede(commands.Cog):
         else:
             await ctx.send("Config reloaded! :D")
 
-    @commands.command()
+    @commands.command(aliases=["lsst"])
     @commands.is_owner()
     async def liststatus(self, ctx):
-        await BotEmbedPaginator(ctx, pages(numbered(config["statuses"]), 10, "Filtered Words")).run()
+        await BotEmbedPaginator(ctx, pages(numbered(config["statuses"]), 10, "Statuses")).run()
 
-    @commands.command()
+    @commands.command(aliases=["dlst"])
     @commands.is_owner()
     async def delstatus(self, ctx, n: int):
         if len(config["statuses"]) == 1:
@@ -97,7 +98,7 @@ class Kaede(commands.Cog):
         else:
             await conf.update("Canceled", color=0xff5555)
 
-    @commands.command()
+    @commands.command(aliases=["adst"])
     @commands.is_owner()
     async def addstatus(self, ctx: commands.Context, *, w: str):
         w = w.strip("` ")
