@@ -29,16 +29,28 @@ class Filter(commands.Cog):
     @commands.command(aliases=["lfw"])
     @commands.has_role(config()["roles"]["staff"])
     async def listfilteredwords(self, ctx: commands.Context):
+        """
+        Lists the filtered words
+        #STAFF
+        """
         await BotEmbedPaginator(ctx, pages(numbered(config()["filters"]["word_blacklist"]), 10, "Filtered Words")).run()
 
     @commands.command(aliases=["lft"])
     @commands.has_role(config()["roles"]["staff"])
     async def listfilteredtoken(self, ctx: commands.Context):
+        """
+        Lists filtered tokens
+        #STAFF
+        """
         await BotEmbedPaginator(ctx, pages(numbered(config()["filters"]["token_blacklist"]), 10, "Filtered Tokens")).run()
 
     @commands.command(aliases=["dfw"])
     @commands.has_role(config()["roles"]["staff"])
     async def delfilteredword(self, ctx: commands.Context, n: int):
+        """
+        Delete a filtered word
+        #STAFF
+        """
         if n < 0 or n >= len(config()["filters"]["word_blacklist"]):
             await ctx.send("Invalid number - do `!lfw` to view")
         conf = BotConfirmation(ctx, 0x5555ff)
@@ -60,6 +72,10 @@ class Filter(commands.Cog):
     @commands.command(aliases=["dft"])
     @commands.has_role(config()["roles"]["staff"])
     async def delfilteredtoken(self, ctx: commands.Context, n: int):
+        """
+        Delete a filtered token
+        #STAFF
+        """
         if n < 0 or n >= len(config()["filters"]["token_blacklist"]):
             await ctx.send("Invalid number - do `!lfw` to view")
         conf = BotConfirmation(ctx, 0x5555ff)
@@ -81,6 +97,10 @@ class Filter(commands.Cog):
     @commands.command(aliases=["ft", "aft"])
     @commands.has_role(config()["roles"]["staff"])
     async def addfilteredtoken(self, ctx: commands.Context, *, w: str):
+        """
+        Add a filtered token
+        #STAFF
+        """
         w = w.strip("` ")
         conf = BotConfirmation(ctx, 0x5555ff)
         await conf.confirm(f'Add `{w}`?')
@@ -100,6 +120,10 @@ class Filter(commands.Cog):
     @commands.command(aliases=["fw", "afw"])
     @commands.has_role(config()["roles"]["staff"])
     async def addfilteredword(self, ctx: commands.Context, *, w: str):
+        """
+        Add a filtered word
+        #STAFF
+        """
         w = w.strip("` ")
         conf = BotConfirmation(ctx, 0x5555ff)
         await conf.confirm(f'Add `{w}`?')

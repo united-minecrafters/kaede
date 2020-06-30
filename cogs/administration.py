@@ -12,7 +12,11 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def color(self, ctx: commands.Context, clr: discord.Color):
-        if config["staff"] not in [r.id for r in ctx.author.roles]:
+        """
+        changes the color of your custom staff role
+        #STAFF
+        """
+        if config()["roles"]["staff"] not in [r.id for r in ctx.author.roles]:
             await ctx.send("Um. *no you can't do that*")
             return
         m: discord.Member = ctx.author
@@ -21,11 +25,16 @@ class Administration(commands.Cog):
 
     @color.error
     async def color_err(self, ctx, error2):
+        print(error2)
         await ctx.send("heh...*nope*")
 
     @commands.command()
     async def role(self, ctx: commands.Context, *, role: str):
-        if config["staff"] not in [r.id for r in ctx.author.roles]:
+        """
+        changes the name of your custom staff role
+        #STAFF
+        """
+        if config()["roles"]["staff"] not in [r.id for r in ctx.author.roles]:
             await ctx.send("Um. *no you can't do that*")
             return
         if len(role) > 32:
@@ -57,8 +66,6 @@ class Administration(commands.Cog):
     @commands.is_owner()
     @commands.command()
     async def eval(self, ctx, *, cmd):
-        if ctx.author.id != 267499094090579970:
-            return
         """Evaluates input.
         Input is interpreted as newline seperated statements.
         If the last statement is an expression, that is the return value.
@@ -78,6 +85,7 @@ class Administration(commands.Cog):
         a
         ```
         https://gist.github.com/nitros12/2c3c265813121492655bc95aa54da6b9
+        #OWNER
         """
         fn_name = "_eval_expr"
 
