@@ -48,12 +48,20 @@ class Kaede(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def logout(self, ctx):
+        """
+        Log kaede out
+        #OWNER
+        """
         await ctx.send("Oki")
         await self.bot.logout()
 
     @commands.command()
     @commands.is_owner()
     async def reloadconfig(self, ctx):
+        """
+        Reload bot config
+        #OWNER
+        """
         await ctx.send("Reloading config...")
         try:
             reload_config()
@@ -69,11 +77,19 @@ class Kaede(commands.Cog):
     @commands.command(aliases=["lsst"])
     @commands.is_owner()
     async def liststatus(self, ctx):
+        """
+        Lists kaede's statuses
+        #OWNER
+        """
         await BotEmbedPaginator(ctx, pages(numbered(config()["statuses"]), 10, "Statuses")).run()
 
     @commands.command(aliases=["dlst"])
     @commands.is_owner()
     async def delstatus(self, ctx, n: int):
+        """
+        Deletes a status
+        #OWNER
+        """
         if len(config()["statuses"]) == 1:
             await ctx.send("Can't delete only status, do `!resetstatus`")
             return
@@ -101,6 +117,10 @@ class Kaede(commands.Cog):
     @commands.command(aliases=["adst"])
     @commands.is_owner()
     async def addstatus(self, ctx: commands.Context, *, w: str):
+        """
+        Adds a status
+        #OWNER
+        """
         w = w.strip("` ")
         conf = BotConfirmation(ctx, 0x5555ff)
         await conf.confirm(f'Add `{w}`?')
@@ -122,6 +142,10 @@ class Kaede(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def resetstatus(self, ctx: commands.Context):
+        """
+        Clear status list
+        #OWNER
+        """
         conf = BotConfirmation(ctx, 0x5555ff)
         await conf.confirm(f'Reset status list?')
 

@@ -22,6 +22,9 @@ class UnitedMC(commands.Cog):
 
     @commands.command()
     async def servers(self, ctx: commands.Context):
+        """
+        Lists the servers
+        """
         embed = discord.Embed(title="United Minecrafters Servers",
                               description="Do `!server servername` to check a server")
         for name, server in self.servers.items():
@@ -39,6 +42,9 @@ class UnitedMC(commands.Cog):
 
     @commands.command()
     async def list(self, ctx: commands.Context, server: str):
+        """
+        Lists the users on a server
+        """
         if server not in self.servers.keys():
             await ctx.send("Invalid server ): Do !servers to see a list of servers")
             return
@@ -63,6 +69,10 @@ class UnitedMC(commands.Cog):
 
     @commands.command()
     async def send(self, ctx: commands.Context, server: str, *, cmd: str):
+        """
+        Sends an RCON command to a server - you must be opped
+        #STAFF
+        """
         if server not in self.servers.keys():
             await ctx.send("Invalid server ):")
             return
@@ -106,6 +116,10 @@ class UnitedMC(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def reloadservers(self, ctx: commands.Context):
+        """
+        Reloads the server list
+        #OWNER
+        """
         await ctx.send("Reoading server config...")
         self._load_server_list()
         await ctx.send("Server config reloaded! :D")
