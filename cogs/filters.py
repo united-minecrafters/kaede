@@ -132,8 +132,8 @@ class Filter(commands.Cog):
         content = message.content.lower()
 
         for r in f["role_whitelist"]:
-            if r in [a.id for a in message.author.roles[0:1]]:
-                pass
+            if r in [a.id for a in message.author.roles[1:]]:
+                return
 
         for r in f["word_blacklist"]:
             if re.search(rf"(?:-|\b){r}(?:-|\b)", content):
