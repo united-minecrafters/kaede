@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from libs.config import config
-from libs.utils import trim, quote
+from libs.utils import quote, trim
 
 
 class ModLog(commands.Cog):
@@ -115,8 +115,8 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=discord.Colour.orange()
             )
-            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-            .add_field(name="Reason", value=reason if reason else "None", inline=False)
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+                .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     async def log_ban_action(self, member: Union[discord.Member, discord.User], *,

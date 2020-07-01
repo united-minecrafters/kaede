@@ -47,7 +47,7 @@ class Help(commands.Cog):
             return await ctx.send(embed=discord.Embed(
                 title=cmd.name,
                 description=(roles[0].strip("# ") if roles else "") +
-                            f"\n{s.strip(NL)}\n" + # noqa e131
+                            f"\n{s.strip(NL)}\n" +  # noqa e131
                             ("Aliases: " + ",".join(f"`{x}`" for x in cmd.aliases) + "\n" if cmd.aliases else ""
                              )))
         cmds: List[commands.Command] = self.bot.commands

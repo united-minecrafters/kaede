@@ -32,8 +32,11 @@ class UnitedMC(commands.Cog):
                             value=f":envelope: **Address**: {server['address']}\n"
                                   f":envelope: **IP:Port**: {server['ip']}:{server['port']}\n"
                                   f":gear: **Software**: {server['version']}\n" +
-                                  (f":white_check_mark: **Requirements**: {server['requirements']}\n" if "requirements" in server else "") +
-                                  (":lock: Whitelisted" if "whitelist" in server and server["whitelist"] else ":earth_americas: Public") +
+                                  (
+                                      f":white_check_mark: **Requirements**: {server['requirements']}\n" if
+                                      "requirements" in server else "") +
+                                  (":lock: Whitelisted" if "whitelist" in server and server[
+                                      "whitelist"] else ":earth_americas: Public") +
                                   (", :desktop: RCON" if "rcon" in server.keys() else "") +
                                   f", {server.get('mode', 'Survival').title()}",
                             inline=False

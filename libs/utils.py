@@ -40,6 +40,7 @@ async def trash_reaction(msg: discord.Message, bot: commands.Bot, ctx: commands.
     :param ctx: the :class:`discord.ext.commands.Context`
     :return:
     """
+
     def check(_reaction: discord.Reaction, _user: discord.User):
         return _user.id == ctx.author.id and _reaction.message.id == msg.id and str(_reaction) == "🗑️"
 

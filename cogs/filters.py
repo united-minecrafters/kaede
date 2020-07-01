@@ -4,12 +4,11 @@ from typing import Optional
 
 import discord
 from discord.ext import commands
-
-from libs.config import config, save_config
-from libs.utils import numbered, quote, pages
-import cogs.modlog
-
 from disputils import BotConfirmation, BotEmbedPaginator
+
+import cogs.modlog
+from libs.config import config, save_config
+from libs.utils import numbered, pages, quote
 
 url_regex = re.compile(r"(https?://[^\s]+)")
 
@@ -42,7 +41,8 @@ class Filter(commands.Cog):
         Lists filtered tokens
         #STAFF
         """
-        await BotEmbedPaginator(ctx, pages(numbered(config()["filters"]["token_blacklist"]), 10, "Filtered Tokens")).run()
+        await BotEmbedPaginator(ctx,
+                                pages(numbered(config()["filters"]["token_blacklist"]), 10, "Filtered Tokens")).run()
 
     @commands.command(aliases=["dfw"])
     @commands.has_role(config()["roles"]["staff"])
@@ -61,7 +61,7 @@ class Filter(commands.Cog):
                 s = config()["filters"]["word_blacklist"][n]
                 del config()["filters"]["word_blacklist"][n]
                 save_config()
-            except Exception as e: # noqa e722
+            except Exception as e:  # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Deleted!", color=0x55ff55)
@@ -86,7 +86,7 @@ class Filter(commands.Cog):
                 s = config()["filters"]["token_blacklist"][n]
                 del config()["filters"]["token_blacklist"][n]
                 save_config()
-            except Exception as e: # noqa e722
+            except Exception as e:  # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Deleted!", color=0x55ff55)
@@ -109,14 +109,14 @@ class Filter(commands.Cog):
             try:
                 config()["filters"]["token_blacklist"].append(w)
                 save_config()
-            except Exception as e: # noqa e722
+            except Exception as e:  # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Added!", color=0x55ff55)
                 await self.modlog.log_message(ctx.author, "Filter Token Modification", f"```diff\n + {w}```")
         else:
             await conf.update("Canceled", color=0xff5555)
-            
+
     @commands.command(aliases=["fw", "afw"])
     @commands.has_role(config()["roles"]["staff"])
     async def addfilteredword(self, ctx: commands.Context, *, w: str):
@@ -132,14 +132,13 @@ class Filter(commands.Cog):
             try:
                 config()["filters"]["word_blacklist"].append(w)
                 save_config()
-            except Exception as e: # noqa e722
+            except Exception as e:  # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Added!", color=0x55ff55)
                 await self.modlog.log_message(ctx.author, "Filter Word Modification", f"```diff\n + {w}```")
         else:
             await conf.update("Canceled", color=0xff5555)
-
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):

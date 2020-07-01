@@ -10,7 +10,7 @@ from discord.ext import commands
 from libs import utils
 from libs.config import config
 
-logging.addLevelName((logging.DEBUG + logging.INFO)//2, "DEBUG2")
+logging.addLevelName((logging.DEBUG + logging.INFO) // 2, "DEBUG2")
 
 logging.basicConfig(level=logging.getLevelName("DEBUG2"), format="%(asctime)-15s %(message)s",
                     datefmt="%m/%d/%Y %H:%M:%S")

@@ -6,7 +6,7 @@ from discord.ext import commands
 
 import cogs
 from libs.config import config
-from libs.utils import trash_reaction, NBSP
+from libs.utils import trash_reaction
 
 MOD_HELP_STR = f"""
 **kick**
@@ -31,6 +31,7 @@ _ _
 Non-silent mod logs go to <#{config()["channels"]["log"]}> with basic info
 All mod logs go to <#{config()["channels"]["modlog"]}> with detailed info
 """
+
 
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -126,6 +127,7 @@ class Moderation(commands.Cog):
             )
         )
         await trash_reaction(msg, self.bot, ctx)
+
 
 def setup(bot: commands.Bot) -> None:
     bot.add_cog(Moderation(bot))
