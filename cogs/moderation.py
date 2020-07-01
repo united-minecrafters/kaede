@@ -98,7 +98,7 @@ class Moderation(commands.Cog):
                 await ctx.send("That ID wasn't found")
                 return
             except discord.HTTPException as e:
-                await ctx.send("An error occurred while banning - {e}")
+                await ctx.send(f"An error occurred while banning - {e}")
                 return
         self.modlog.kaede_bans.append(user.id)
         if isinstance(user, discord.Member):
