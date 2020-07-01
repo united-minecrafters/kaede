@@ -46,7 +46,7 @@ async def trash_reaction(msg: discord.Message, bot: commands.Bot, ctx: commands.
 
     await msg.add_reaction("🗑️")
     try:
-        reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
+        _, _ = await bot.wait_for("reaction_add", timeout=60.0, check=check)
     except asyncio.TimeoutError:
         await msg.clear_reactions()
     else:
@@ -55,7 +55,7 @@ async def trash_reaction(msg: discord.Message, bot: commands.Bot, ctx: commands.
 
 def group_list(lst: List[Any], n: int) -> List[List[Any]]:
     """
-    Splits a list into sublists of n
+    Splits a list into sub-lists of n
 
     :param lst: the list
     :param n: the subgroup size
@@ -65,16 +65,17 @@ def group_list(lst: List[Any], n: int) -> List[List[Any]]:
 
 
 def pages(lst: List[Any], n: int, title: str, *, fmt: str = "```%s```", sep: str = "\n") -> List[discord.Embed]:
+    # noinspection GrazieInspection
     """
-    Paginates a list into embeds to use with :class:disputils.BotEmbedPaginator
+        Paginates a list into embeds to use with :class:disputils.BotEmbedPaginator
 
-    :param lst: the list to paginate
-    :param n: the number of elements per page
-    :param title: the title of the embed
-    :param fmt: a % string used to format the resulting page
-    :param sep: the string to join the list elements with
-    :return: a list of embeds
-    """
+        :param lst: the list to paginate
+        :param n: the number of elements per page
+        :param title: the title of the embed
+        :param fmt: a % string used to format the resulting page
+        :param sep: the string to join the list elements with
+        :return: a list of embeds
+        """
     l: List[List[str]] = group_list([str(i) for i in lst], n)
     pgs = [sep.join(page) for page in l]
     return [

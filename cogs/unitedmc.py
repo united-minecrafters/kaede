@@ -26,7 +26,7 @@ class UnitedMC(commands.Cog):
         Lists the servers
         """
         embed = discord.Embed(title="United Minecrafters Servers",
-                              description="Do `!server servername` to check a server")
+                              description="Do `!server server_name` to check a server")
         for name, server in self.servers.items():
             embed.add_field(name=name,
                             value=f":envelope: **Address**: {server['address']}\n"
@@ -65,7 +65,7 @@ class UnitedMC(commands.Cog):
         except ConnectionRefusedError:
             await ctx.send(embed=discord.Embed(
                 title=f"{server} - Error",
-                description=f"An error has occured. Is the server online?",
+                description=f"An error has occurred. Is the server online?",
                 color=discord.Colour.red())
                            .set_footer(text="ConnectionRefusedError"),
                            )
@@ -123,7 +123,7 @@ class UnitedMC(commands.Cog):
         Reloads the server list
         #OWNER
         """
-        await ctx.send("Reoading server config...")
+        await ctx.send("Reloading server config...")
         self._load_server_list()
         await ctx.send("Server config reloaded! :D")
 

@@ -115,8 +115,8 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=discord.Colour.orange()
             )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-                .add_field(name="Reason", value=reason if reason else "None", inline=False)
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     async def log_ban_action(self, member: Union[discord.Member, discord.User], *,
@@ -138,8 +138,8 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=discord.Colour.orange()
             )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-                .add_field(name="Reason", value=reason if reason else "None", inline=False)
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     @commands.Cog.listener()
@@ -159,6 +159,7 @@ class ModLog(commands.Cog):
     async def on_member_remove(self, member: discord.Member):
         await self.log_user(member, False)
 
+    # noinspection PyUnusedLocal
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
         reason, staff, silent = None, None, False
@@ -167,6 +168,7 @@ class ModLog(commands.Cog):
             return
         await self.log_ban_action(user, reason=reason, banned=True, staff=staff)
 
+    # noinspection PyUnusedLocal
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
         reason, staff, silent = None, None, False
