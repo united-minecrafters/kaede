@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 from disputils import BotConfirmation, BotEmbedPaginator
 
-import cogs.modlog
+import cogs.administration.modlog
 from libs.config import config, save_config
 from libs.utils import numbered, pages, quote
 
@@ -16,7 +16,7 @@ url_regex = re.compile(r"(https?://[^\s]+)")
 class Filter(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.modlog: Optional[cogs.modlog.ModLog] = None
+        self.modlog: Optional[cogs.administration.modlog.ModLog] = None
         bot.loop.create_task(self._init())
 
     async def _init(self):

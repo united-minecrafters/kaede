@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from disputils import BotEmbedPaginator
 
-import cogs.moderation
+import cogs.administration.moderation
 from libs.config import config
 from libs.utils import pages
 
@@ -42,7 +42,7 @@ class Help(commands.Cog):
             if cmd.cog_name == "Moderation":
                 return await ctx.send(embed=discord.Embed(
                     title=cmd.name,
-                    description=cogs.moderation.MOD_HELP_STR))
+                    description=cogs.administration.moderation.MOD_HELP_STR))
             s, roles = parse_help_str(cmd.callback.__doc__)
             return await ctx.send(embed=discord.Embed(
                 title=cmd.name,
@@ -65,7 +65,7 @@ class Help(commands.Cog):
                            ("Aliases: " + ",".join(f"`{x}`" for x in i.aliases) + "\n" if i.aliases else ""))
         embeds = pages(lst, 7, "Help", fmt="%s")
         if config()["roles"]["staff"] in [r.id for r in ctx.author.roles]:
-            embeds.append(discord.Embed(title="Help", description=cogs.moderation.MOD_HELP_STR))
+            embeds.append(discord.Embed(title="Help", description=cogs.administration.moderation.MOD_HELP_STR))
         await BotEmbedPaginator(ctx, embeds).run()
 
 

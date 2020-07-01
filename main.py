@@ -29,12 +29,12 @@ bot.remove_command('help')
 
 initial_extensions = ["cogs.search",
                       "cogs.unitedmc",
-                      "cogs.administration",
-                      "cogs.filters",
-                      "cogs.modlog",
-                      "cogs.kaede",
-                      "cogs.help",
-                      "cogs.moderation"]
+                      "cogs.administration.administration",
+                      "cogs.administration.filters",
+                      "cogs.administration.moderation",
+                      "cogs.administration.modlog",
+                      "cogs.administration.kaede",
+                      "cogs.help"]
 if __name__ == '__main__':
     for ext in initial_extensions:
         logging.info(f"[BOT] Loading {ext}")

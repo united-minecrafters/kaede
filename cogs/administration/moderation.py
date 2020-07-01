@@ -36,7 +36,7 @@ All mod logs go to <#{config()["channels"]["modlog"]}> with detailed info
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.modlog: Optional[cogs.modlog.ModLog] = None
+        self.modlog: Optional[cogs.administration.modlog.ModLog] = None
         bot.loop.create_task(self._init())
         self.user_cache = {}
 

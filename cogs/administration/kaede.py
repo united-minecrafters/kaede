@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands, tasks
 from disputils import BotConfirmation, BotEmbedPaginator
 
-from cogs.modlog import ModLog
+from cogs.administration.modlog import ModLog
 from libs.config import config, reload_config, save_config
 from libs.utils import numbered, pages
 
