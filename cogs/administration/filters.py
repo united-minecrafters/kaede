@@ -1,12 +1,14 @@
 import logging
 import re
-from typing import Optional
+from typing import Dict, List, Optional, Tuple
 
+import asyncio
 import discord
 from discord.ext import commands
 from disputils import BotConfirmation, BotEmbedPaginator
 
 import cogs.administration.modlog
+import cogs.administration.moderation
 from libs.config import config, save_config
 from libs.utils import numbered, pages, quote
 
@@ -17,12 +19,25 @@ class Filter(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.modlog: Optional[cogs.administration.modlog.ModLog] = None
+        self.moderation: Optional[cogs.administration.moderation.Moderation] = None
         bot.loop.create_task(self._init())
+        self._cooldowns: Dict[str, commands.CooldownMapping] = {}
+        self._cd_vals: Dict[str, Tuple[float, float]] = {}
+        for rule in ["burst"]:
+            self._cooldowns[rule] = commands.CooldownMapping.from_cooldown(
+                float(config()["automod"][rule]["number"]),
+                float(config()["automod"][rule]["interval"]),
+                commands.BucketType.member
+            )
+            self._cd_vals[rule] = (float(config()["automod"][rule]["number"]),
+                                   float(config()["automod"][rule]["number"]))
+
 
     async def _init(self):
         logging.info("[FILTER] Waiting for bot")
         await self.bot.wait_until_ready()
         self.modlog = self.bot.get_cog("ModLog")
+        self.moderation = self.bot.get_cog("Moderation")
         logging.info("[FILTER] Ready")
 
     @commands.command(aliases=["lfw"])
@@ -157,6 +172,13 @@ class Filter(commands.Cog):
         for r in f["role_whitelist"]:
             if r in [a.id for a in message.author.roles[1:]]:
                 return
+
+        if self._cooldowns["burst"].get_bucket(message).update_rate_limit():
+            dur = int(config()["automod"]["punishment"]["duration"])
+            if message.author.id not in self.moderation.active_mutes: # prevent race condition
+                await self.moderation.bot_mute(message.author, "burst", dur)
+                await message.channel.send(f"🤫 {message.author} muted for {dur}s (burst)")
+            return
 
         for r in f["word_blacklist"]:
             if re.search(rf"(?:-|\b){r}(?:-|\b)", content):

@@ -1,15 +1,16 @@
-import logging
-from typing import Optional, Union
+import asyncio
 import datetime
+import logging
+from typing import List, Optional, Union
 
 import discord
 from discord.ext import commands
 from disputils import BotEmbedPaginator
 
 import cogs
-from libs.config import config
-from libs.utils import trash_reaction, pages
 from cogs.administration.punishments import Record
+from libs.config import config
+from libs.utils import pages, trash_reaction
 
 MOD_HELP_STR = f"""
 **kick**
@@ -35,7 +36,6 @@ Non-silent mod logs go to <#{config()["channels"]["log"]}> with basic info
 All mod logs go to <#{config()["channels"]["modlog"]}> with detailed info
 """
 
-
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -43,12 +43,17 @@ class Moderation(commands.Cog):
         self.punishments: Optional[cogs.administration.punishments.Punishments] = None
         bot.loop.create_task(self._init())
         self.user_cache = {}
+        self.active_mutes: List[int] = []
+        self.muted_role: Optional[discord.Role] = None
 
     async def _init(self):
         logging.info("[MOD] Waiting for bot")
         await self.bot.wait_until_ready()
         self.modlog = self.bot.get_cog("ModLog")
         self.punishments = self.bot.get_cog("Punishments")
+        self.muted_role = self.bot.get_guild(586199960198971409).get_role(config()["roles"]["muted"])
+        for i in self.muted_role.members:
+            self.active_mutes.append(i.id)
         logging.info("[MOD] Ready")
 
     @commands.command()
@@ -80,10 +85,27 @@ class Moderation(commands.Cog):
             f"**W-{w.id}** - {w.reason[:100]}\n"
             f"- <@{w.staff}> - "
             f" {datetime.datetime.utcfromtimestamp(w.timestamp).strftime('%b %d %y %H:%M:%S')}"
-            for w in warns], 5, f"{member}'s Warns", fmt="%s")).run()
+            for w in warns], 8, f"{member}'s Warns", fmt="%s")).run()
 
     @commands.command(aliases=["recs"])
     async def records(self, ctx: commands.Context, member: Union[discord.Member, discord.User, int]):
+        """
+        Gets the moderation records for a user
+        #STAFF
+        """
+        if not isinstance(member, int):
+            member = member.id
+        warns = await self.punishments.get_warn_records(member)
+        bans = await self.punishments.get_ban_records(member)
+        total = warns + bans
+        if not total:
+            await ctx.send(embed=discord.Embed(title=f"{member}'s warns", description="No records for this member"))
+            return
+        await BotEmbedPaginator(ctx, pages([
+            f"**{w.typ}-{w.id}** - {w.reason[:100]}\n"
+            f"- <@{w.staff}> - "
+            f" {datetime.datetime.utcfromtimestamp(w.timestamp).strftime('%b %d %y %H:%M:%S')}"
+            for w in sorted(total, key=lambda x: x.timestamp)], 8, f"{member}'s Records", fmt="%s")).run()
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
@@ -171,6 +193,70 @@ class Moderation(commands.Cog):
             )
         )
         await trash_reaction(msg, self.bot, ctx)
+
+    @commands.command()
+    @commands.has_role(config()["roles"]["staff"])
+    async def mute(self, ctx: commands.Context, user: discord.Member):
+        """
+        Indefinitely mutes a user
+        #STAFF
+        """
+        if user.id in self.active_mutes:
+            await ctx.send(f"{user} is already muted.")
+            return
+        self.active_mutes.append(user.id)
+        await user.add_roles(ctx.guild
+                             .get_role(int(config()["roles"]["muted"])), reason=f"Muted by {ctx.author}")
+        await self.modlog.log_mute_action(user, manual=True, seconds=0, staff=ctx.author)
+        await self.punishments.insert_warn_record(Record(
+            reason="Mute",
+            user=user.id,
+            staff=ctx.author.id
+        ))
+        await ctx.send(f"Muted {user}")
+
+    @commands.command()
+    @commands.has_role(config()["roles"]["staff"])
+    async def unmute(self, ctx: commands.Context, user: discord.Member):
+        """
+        Unmutes a user
+        #STAFF
+        """
+        if user.id not in self.active_mutes:
+            await ctx.send(f"{user} is not muted.")
+            return
+        del self.active_mutes[self.active_mutes.index(user.id)]
+        await user.remove_roles(ctx.guild
+                                .get_role(int(config()["roles"]["muted"])), reason=f"Unmuted by {ctx.author}")
+        await self.modlog.log_mute_action(user, muted=False, manual=True, seconds=0, staff=ctx.author)
+        await ctx.send(f"Unmuted {user}")
+
+    async def bot_unmute(self, user: discord.Member):
+        if user.id not in self.active_mutes:
+            return
+        del self.active_mutes[self.active_mutes.index(user.id)]
+        await user.remove_roles(self.muted_role, reason=f"Unmuted by Bot")
+        await self.modlog.log_mute_action(user, muted=False, seconds=0)
+
+    async def bot_mute(self, user: discord.Member, rule: str, seconds: int):
+        if user.id in self.active_mutes:
+            return False
+        self.active_mutes.append(user.id)
+        try:
+            await user.send("Hey there! Looks like you were muted for spamming. Make sure you refrain from "
+                            "that in the future to avoid being kicked or banned.")
+        except discord.DiscordException:
+            pass
+        await self.punishments.insert_warn_record(Record(
+            reason=f"Auto Mute - {rule}",
+            user=user.id,
+            staff=self.bot.user.id
+        ))
+        await user.add_roles(self.muted_role, reason=f"Muted by Bot")
+        await self.modlog.log_mute_action(user, seconds=seconds, rule=rule)
+        self.bot.loop.call_later(seconds,
+                                 lambda: asyncio.ensure_future(self.bot_unmute(user)))
+        return True
 
 
 def setup(bot: commands.Bot) -> None:

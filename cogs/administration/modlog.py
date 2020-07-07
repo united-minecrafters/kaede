@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from libs.config import config
 from libs.utils import quote, trim
-
+from libs.conversions import seconds_to_str, str_to_seconds
 
 class ModLog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -118,6 +118,32 @@ class ModLog(commands.Cog):
             .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
             .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
+
+    async def log_mute_action(self, member: Union[discord.Member, discord.User], *, muted: bool = True,
+                              manual: bool = False, seconds: int = None, staff: discord.Member = None,
+                              rule: str = None):
+        if muted:
+            await self.logchannel.send(
+                embed=discord.Embed(
+                    title="🤫 User Muted",
+                    description=f"{member} | <@!{member.id}>",
+                    colour=discord.Colour.dark_magenta()
+                )
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+                .add_field(name="Type", value="Manual" if manual else f"Auto {rule}")
+                .add_field(name="Time", value=seconds_to_str(seconds) if seconds else "N/A")
+            )
+        else:
+            await self.logchannel.send(
+                embed=discord.Embed(
+                    title="🔊 User Unmuted",
+                    description=f"{member} | <@!{member.id}>",
+                    colour=discord.Colour.dark_magenta()
+                )
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
+                           inline=False)
+                .add_field(name="Type", value="Manual" if manual else f"Auto")
+            )
 
     async def log_warn_action(self, member: discord.Member, *, reason: str = None, staff: discord.Member = None):
         await self.logchannel.send(

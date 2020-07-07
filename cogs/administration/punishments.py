@@ -49,7 +49,7 @@ class Punishments(commands.Cog):
         await self.conn.commit()
 
     async def get_ban_records(self, user_id: int) -> Optional[List[Record]]:
-        results = await (await self.conn.execute("select * from bans where banned_user=?", (user_id,))).fetchall()
+        results = await (await self.conn.execute("select * from bans where user=?", (user_id,))).fetchall()
         if not results:
             return None
         return [Record(staff=r[2], user=r[1], id=r[0], timestamp=r[3],
