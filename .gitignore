@@ -130,3 +130,5 @@ dmypy.json
 servers.json
 
 config.yaml
+
+*.db

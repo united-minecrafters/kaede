@@ -119,6 +119,17 @@ class ModLog(commands.Cog):
             .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
+    async def log_warn_action(self, member: discord.Member, *, reason: str = None, staff: discord.Member = None):
+        await self.logchannel.send(
+            embed=discord.Embed(
+                title=f"User Warned",
+                description=f"{member} | <@!{member.id}>",
+                colour=discord.Colour.orange()
+            )
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
+        )
+
     async def log_ban_action(self, member: Union[discord.Member, discord.User], *,
                              soft: bool = False, silent: bool = False, reason: str = None,
                              banned: bool = False, staff: discord.Member = None):

@@ -1,12 +1,15 @@
 import logging
 from typing import Optional, Union
+import datetime
 
 import discord
 from discord.ext import commands
+from disputils import BotEmbedPaginator
 
 import cogs
 from libs.config import config
-from libs.utils import trash_reaction
+from libs.utils import trash_reaction, pages
+from cogs.administration.punishments import Record
 
 MOD_HELP_STR = f"""
 **kick**
@@ -37,6 +40,7 @@ class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.modlog: Optional[cogs.administration.modlog.ModLog] = None
+        self.punishments: Optional[cogs.administration.punishments.Punishments] = None
         bot.loop.create_task(self._init())
         self.user_cache = {}
 
@@ -44,7 +48,42 @@ class Moderation(commands.Cog):
         logging.info("[MOD] Waiting for bot")
         await self.bot.wait_until_ready()
         self.modlog = self.bot.get_cog("ModLog")
+        self.punishments = self.bot.get_cog("Punishments")
         logging.info("[MOD] Ready")
+
+    @commands.command()
+    @commands.has_role(config()["roles"]["staff"])
+    async def warn(self, ctx: commands.Context, member: discord.Member, *, reason: str = None):
+        """
+        Warns a user, optional reason
+        #STAFF
+        """
+        await self.punishments.insert_warn_record(Record(
+            reason=reason,
+            user=member.id,
+            staff=ctx.author.id
+        ))
+        await ctx.send(f"{member} warned", delete_after=60)
+        await self.modlog.log_warn_action(member, staff=ctx.author, reason=reason)
+
+    @commands.command(aliases=["warns"])
+    async def warnlog(self, ctx: commands.Context, member: discord.Member):
+        """
+        Gets the warnings for a user
+        #STAFF
+        """
+        warns = await self.punishments.get_warn_records(member.id)
+        if not warns:
+            await ctx.send(embed=discord.Embed(title=f"{member}'s warns", description="No warnings for this member"))
+            return
+        await BotEmbedPaginator(ctx, pages([
+            f"**W-{w.id}** - {w.reason[:100]}\n"
+            f"- <@{w.staff}> - "
+            f" {datetime.datetime.utcfromtimestamp(w.timestamp).strftime('%b %d %y %H:%M:%S')}"
+            for w in warns], 5, f"{member}'s Warns", fmt="%s")).run()
+
+    @commands.command(aliases=["recs"])
+    async def records(self, ctx: commands.Context, member: Union[discord.Member, discord.User, int]):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
@@ -78,6 +117,10 @@ class Moderation(commands.Cog):
                 await ctx.send(f"An error occurred while banning - {e}")
                 return
         self.modlog.kaede_bans.append(user.id)
+        await self.modlog.log_ban_action(user, reason=reason, banned=True, staff=ctx.author)
+        await self.punishments.insert_ban_record(Record(
+            reason=reason, user=user.id, staff=ctx.author.id
+        ))
         if isinstance(user, discord.Member):
             await user.ban(reason=f"{ctx.author} | {reason}")
         else:
@@ -101,6 +144,7 @@ class Moderation(commands.Cog):
                 await ctx.send(f"An error occurred while banning - {e}")
                 return
         self.modlog.kaede_bans.append(user.id)
+        await self.modlog.log_ban_action(user, reason=reason, silent=True, banned=True, staff=ctx.author)
         if isinstance(user, discord.Member):
             await user.ban(reason=f"S | {ctx.author} | {reason}")
         else:
