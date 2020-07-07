@@ -14,6 +14,7 @@ class MinecraftClient:
     """
     https://github.com/MrReacher/async-mcrcon/blob/master/async_mcrcon.py
     """
+
     def __init__(self, host, port, password):
         self.host = host
         self.port = port

@@ -6,8 +6,8 @@ import discord
 from discord.ext import commands
 
 from libs.config import config
-from libs.utils import cond_trim, quote
-
+from libs.utils import quote, trim
+from libs.conversions import seconds_to_str, str_to_seconds
 
 class ModLog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -44,8 +44,8 @@ class ModLog(commands.Cog):
                             f"[Jump to message]({before.jump_url})",
                 colour=discord.Colour.blue()
             )
-                .add_field(name="Before", value=cond_trim(before.content))  # noqa 141
-                .add_field(name="After", value=cond_trim(after.content))
+                .add_field(name="Before", value=trim(before.content))  # noqa 141
+                .add_field(name="After", value=trim(after.content))
         )
         logging.log(15, f"[MODLOG | EDIT] {msg.id}\n---\n{quote(before.content)}\n---\n{quote(after.content)}")
 
@@ -56,7 +56,7 @@ class ModLog(commands.Cog):
                 description=f"{message.author} | {message.author.id}\n",
                 colour=discord.Colour.orange()
             )
-                .add_field(name="Content", value=cond_trim(message.content))  # noqa 141
+                .add_field(name="Content", value=trim(message.content))  # noqa 141
                 .set_footer(text=f"Rule: {flt}")
         )
         self.suppressed_deletion_messages.append(message.id)
@@ -78,7 +78,7 @@ class ModLog(commands.Cog):
                 colour=discord.Colour.blue(),
                 timestamp=message.created_at
             )
-                .add_field(name="Content", value=cond_trim(message.content))  # noqa 141
+                .add_field(name="Content", value=trim(message.content))  # noqa 141
                 .set_footer(text="Send time")
         )
         logging.log(15, f"[MODLOG | DELETE] {msg.id}: {msg.content}")
@@ -119,6 +119,43 @@ class ModLog(commands.Cog):
             .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
+    async def log_mute_action(self, member: Union[discord.Member, discord.User], *, muted: bool = True,
+                              manual: bool = False, seconds: int = None, staff: discord.Member = None,
+                              rule: str = None):
+        if muted:
+            await self.logchannel.send(
+                embed=discord.Embed(
+                    title="🤫 User Muted",
+                    description=f"{member} | <@!{member.id}>",
+                    colour=discord.Colour.dark_magenta()
+                )
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+                .add_field(name="Type", value="Manual" if manual else f"Auto {rule}")
+                .add_field(name="Time", value=seconds_to_str(seconds) if seconds else "N/A")
+            )
+        else:
+            await self.logchannel.send(
+                embed=discord.Embed(
+                    title="🔊 User Unmuted",
+                    description=f"{member} | <@!{member.id}>",
+                    colour=discord.Colour.dark_magenta()
+                )
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
+                           inline=False)
+                .add_field(name="Type", value="Manual" if manual else f"Auto")
+            )
+
+    async def log_warn_action(self, member: discord.Member, *, reason: str = None, staff: discord.Member = None):
+        await self.logchannel.send(
+            embed=discord.Embed(
+                title=f"User Warned",
+                description=f"{member} | <@!{member.id}>",
+                colour=discord.Colour.orange()
+            )
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
+        )
+
     async def log_ban_action(self, member: Union[discord.Member, discord.User], *,
                              soft: bool = False, silent: bool = False, reason: str = None,
                              banned: bool = False, staff: discord.Member = None):
@@ -138,8 +175,8 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=discord.Colour.orange()
             )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-                .add_field(name="Reason", value=reason if reason else "None", inline=False)
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     @commands.Cog.listener()
@@ -159,6 +196,7 @@ class ModLog(commands.Cog):
     async def on_member_remove(self, member: discord.Member):
         await self.log_user(member, False)
 
+    # noinspection PyUnusedLocal
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
         reason, staff, silent = None, None, False
@@ -167,6 +205,7 @@ class ModLog(commands.Cog):
             return
         await self.log_ban_action(user, reason=reason, banned=True, staff=staff)
 
+    # noinspection PyUnusedLocal
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
         reason, staff, silent = None, None, False

@@ -1,5 +1,4 @@
 # pycharm stuff
-.idea/
 *.sh
 session
 
@@ -131,3 +130,5 @@ dmypy.json
 servers.json
 
 config.yaml
+
+*.db

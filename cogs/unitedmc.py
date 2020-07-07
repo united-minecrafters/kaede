@@ -26,14 +26,17 @@ class UnitedMC(commands.Cog):
         Lists the servers
         """
         embed = discord.Embed(title="United Minecrafters Servers",
-                              description="Do `!server servername` to check a server")
+                              description="Do `!server server_name` to check a server")
         for name, server in self.servers.items():
             embed.add_field(name=name,
                             value=f":envelope: **Address**: {server['address']}\n"
                                   f":envelope: **IP:Port**: {server['ip']}:{server['port']}\n"
                                   f":gear: **Software**: {server['version']}\n" +
-                                  (f":white_check_mark: **Requirements**: {server['requirements']}\n" if "requirements" in server else "") +
-                                  (":lock: Whitelisted" if "whitelist" in server and server["whitelist"] else ":earth_americas: Public") +
+                                  (
+                                      f":white_check_mark: **Requirements**: {server['requirements']}\n" if
+                                      "requirements" in server else "") +
+                                  (":lock: Whitelisted" if "whitelist" in server and server[
+                                      "whitelist"] else ":earth_americas: Public") +
                                   (", :desktop: RCON" if "rcon" in server.keys() else "") +
                                   f", {server.get('mode', 'Survival').title()}",
                             inline=False
@@ -62,7 +65,7 @@ class UnitedMC(commands.Cog):
         except ConnectionRefusedError:
             await ctx.send(embed=discord.Embed(
                 title=f"{server} - Error",
-                description=f"An error has occured. Is the server online?",
+                description=f"An error has occurred. Is the server online?",
                 color=discord.Colour.red())
                            .set_footer(text="ConnectionRefusedError"),
                            )
@@ -120,7 +123,7 @@ class UnitedMC(commands.Cog):
         Reloads the server list
         #OWNER
         """
-        await ctx.send("Reoading server config...")
+        await ctx.send("Reloading server config...")
         self._load_server_list()
         await ctx.send("Server config reloaded! :D")
 

@@ -6,9 +6,10 @@ import discord
 from discord.ext import commands, tasks
 from disputils import BotConfirmation, BotEmbedPaginator
 
-from cogs.modlog import ModLog
+from cogs.administration.modlog import ModLog
 from libs.config import config, reload_config, save_config
 from libs.utils import numbered, pages
+
 
 class Kaede(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -68,7 +69,7 @@ class Kaede(commands.Cog):
             self.status = cycle(config()["statuses"])
             self.status_rotate.change_interval(seconds=config()["status_cycle"])
             self.status_rotate.restart()
-        except Exception as e: # noqa e722
+        except Exception as e:  # noqa e722
             await ctx.send("An error occ ured")
             raise e
         else:
@@ -106,7 +107,7 @@ class Kaede(commands.Cog):
                 save_config()
                 self.status = cycle(config()["statuses"])
                 self.status_rotate.restart()
-            except Exception as e: # noqa e722
+            except Exception as e:  # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Deleted!", color=0x55ff55)
@@ -131,7 +132,7 @@ class Kaede(commands.Cog):
                 save_config()
                 self.status = cycle(config()["statuses"])
                 self.status_rotate.restart()
-            except Exception as e: # noqa e722
+            except Exception as e:  # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Added!", color=0x55ff55)
@@ -155,13 +156,14 @@ class Kaede(commands.Cog):
                 save_config()
                 self.status = cycle(config()["statuses"])
                 self.status_rotate.restart()
-            except Exception as e: # noqa e722
+            except Exception as e:  # noqa e722
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Reset!", color=0x55ff55)
                 await self.modlog.log_message(ctx.author, "Status Modification", f"```# Reset #```")
         else:
             await conf.update("Canceled", color=0xff5555)
+
 
 def setup(bot: commands.Bot) -> None:
     bot.add_cog(Kaede(bot))

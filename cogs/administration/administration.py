@@ -44,8 +44,9 @@ class Administration(commands.Cog):
         await m.top_role.edit(name=role)
         await ctx.send(":)")
 
+    # noinspection PyUnusedLocal
     @role.error
-    async def role_err(self, ctx, error2):
+    async def role_err(self, ctx, error):
         await ctx.send("heh...*nope*")
 
     def insert_returns(self, body):
@@ -54,7 +55,7 @@ class Administration(commands.Cog):
             body[-1] = ast.Return(body[-1].value)
             ast.fix_missing_locations(body[-1])
 
-        # for if statements, we insert returns into the body and the orelse
+        # for if statements, we insert returns into the body and the else
         if isinstance(body[-1], ast.If):
             self.insert_returns(body[-1].body)
             self.insert_returns(body[-1].orelse)
@@ -67,17 +68,17 @@ class Administration(commands.Cog):
     @commands.command()
     async def eval(self, ctx, *, cmd):
         """Evaluates input.
-        Input is interpreted as newline seperated statements.
+        Input is interpreted as newline-separated statements.
         If the last statement is an expression, that is the return value.
         Usable globals:
           - `bot`: the bot instance
           - `discord`: the discord module
           - `commands`: the discord.ext.commands module
-          - `ctx`: the invokation context
+          - `ctx`: the invocation context
           - `__import__`: the builtin `__import__` function
         Such that `>eval 1 + 1` gives `2` as the result.
-        The following invokation will cause the bot to send the text '9'
-        to the channel of invokation and return '3' as the result of evaluating
+        The following invocation will cause the bot to send the text '9'
+        to the channel of invocation and return '3' as the result of evaluating
         >eval ```
         a = 1 + 2
         b = a * 2

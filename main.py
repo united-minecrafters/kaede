@@ -10,7 +10,7 @@ from discord.ext import commands
 from libs import utils
 from libs.config import config
 
-logging.addLevelName((logging.DEBUG + logging.INFO)//2, "DEBUG2")
+logging.addLevelName((logging.DEBUG + logging.INFO) // 2, "DEBUG2")
 
 logging.basicConfig(level=logging.getLevelName("DEBUG2"), format="%(asctime)-15s %(message)s",
                     datefmt="%m/%d/%Y %H:%M:%S")
@@ -29,12 +29,13 @@ bot.remove_command('help')
 
 initial_extensions = ["cogs.search",
                       "cogs.unitedmc",
-                      "cogs.administration",
-                      "cogs.filters",
-                      "cogs.modlog",
-                      "cogs.kaede",
-                      "cogs.help",
-                      "cogs.moderation"]
+                      "cogs.administration.administration",
+                      "cogs.administration.filters",
+                      "cogs.administration.moderation",
+                      "cogs.administration.modlog",
+                      "cogs.administration.kaede",
+                      "cogs.administration.punishments",
+                      "cogs.help"]
 if __name__ == '__main__':
     for ext in initial_extensions:
         logging.info(f"[BOT] Loading {ext}")
