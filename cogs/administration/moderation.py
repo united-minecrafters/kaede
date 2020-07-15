@@ -114,6 +114,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str = None):
+        """
+        #STAFF
+        """
         self.modlog.kaede_kicks.append(member.id)
         await member.kick(reason=reason)
         await self.modlog.log_kick_action(member, reason=reason, staff=ctx.author)
@@ -122,6 +125,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def skick(self, ctx: commands.Context, member: discord.Member, *, reason: str = None):
+        """
+        #STAFF
+        """
         self.modlog.kaede_kicks.append(member.id)
         await member.kick(reason=reason)
         await self.modlog.log_kick_action(member, silent=True, reason=reason, staff=ctx.author)
@@ -129,6 +135,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx: commands.Context, user: Union[discord.Member, int], *, reason: str = None):
+        """
+        #STAFF
+        """
         if isinstance(user, int):
             try:
                 if user in self.user_cache:
@@ -156,6 +165,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def sban(self, ctx: commands.Context, user: Union[discord.Member, int], *, reason: str = None):
+        """
+        #STAFF
+        """
         if isinstance(user, int):
             try:
                 if user in self.user_cache:
@@ -179,6 +191,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def softban(self, ctx: commands.Context, member: discord.Member, *, reason: str = None):
+        """
+        #STAFF
+        """
         await member.send(f"You have been softbanned from {ctx.guild.name}. This is not a ban, but a kick+message "
                           f"delete.")
         self.modlog.kaede_bans.append(member.id)
@@ -187,9 +202,12 @@ class Moderation(commands.Cog):
         await member.unban(reason=f"{ctx.author} | Soft Ban")
         await self.modlog.log_ban_action(member, soft=True, silent=True, staff=ctx.author, reason=reason)
 
-    @commands.command()
+    @commands.command(aliases=["mhelp"])
     @commands.has_role(config()["roles"]["staff"])
     async def modhelp(self, ctx: commands.Context):
+        """
+        #STAFF
+        """
         msg: discord.Message = await ctx.send(
             embed=discord.Embed(
                 title="United Minecrafters Moderation Commands",
@@ -235,7 +253,7 @@ class Moderation(commands.Cog):
         await self.modlog.log_mute_action(user, muted=False, manual=True, seconds=0, staff=ctx.author)
         await ctx.send(f"Unmuted {user}")
 
-    @commands.command()
+    @commands.command(aliases=["silence"])
     @commands.has_role(config()["roles"]["staff"])
     async def sh(self, ctx: commands.Context, time: int = 10):
         """
@@ -254,7 +272,7 @@ class Moderation(commands.Cog):
             await self.modlog.log_message(ctx.author, "Channel unsilenced",
                                           f"Channel <#{ctx.channel.id}> unsilenced")
 
-    @commands.command()
+    @commands.command(aliases=["unsilence"])
     @commands.has_role(config()["roles"]["staff"])
     async def unsh(self, ctx: commands.Context):
         """
