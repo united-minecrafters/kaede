@@ -15,7 +15,7 @@ class Help(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    def _is_allowed_for(self, hs_parsed: Tuple[str, List[str]], ctx: commands.Context):
+    async def _is_allowed_for(self, hs_parsed: Tuple[str, List[str]], ctx: commands.Context):
         if not hs_parsed[1]:
             return True
         for r in hs_parsed[1]:
@@ -39,7 +39,7 @@ class Help(commands.Cog):
                         title="Command not found",
                         description=f"Command `{cmd_s}` is not a valid command"
                     ))
-            if cmd.cog_name == "Moderation":
+            if cmd.name in "ban,sban,softban,kick,skick".split(","):
                 return await ctx.send(embed=discord.Embed(
                     title=cmd.name,
                     description=cogs.administration.moderation.MOD_HELP_STR))
@@ -50,14 +50,14 @@ class Help(commands.Cog):
                             f"\n{s.strip(NL)}\n" +  # noqa e131
                             ("Aliases: " + ",".join(f"`{x}`" for x in cmd.aliases) + "\n" if cmd.aliases else ""
                              )))
-        cmds: List[commands.Command] = self.bot.commands
+        cmds: List[commands.Command] = sorted(self.bot.commands, key=lambda x: x.cog_name)
         lst = []
         for i in cmds:
             if i.callback.__doc__:
                 s, roles = parse_help_str(i.callback.__doc__)
             else:
                 continue
-            if self._is_allowed_for((s, roles), ctx):
+            if await self._is_allowed_for((s, roles), ctx):
                 s = s.strip("\n ").splitlines(keepends=False)[0]
                 lst.append(f"`{i.name.strip()}`:  " +
                            (roles[0].strip("# ") if roles else "") + "\n" +
