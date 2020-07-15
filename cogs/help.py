@@ -21,7 +21,7 @@ class Help(commands.Cog):
         for r in hs_parsed[1]:
             if r == "#STAFF" and config()["roles"]["staff"] in [r.id for r in ctx.author.roles]:
                 return True
-            if r == "#OWNER" and self.bot.is_owner(ctx.author):
+            if r == "#OWNER" and await self.bot.is_owner(ctx.author):
                 return True
         return False
 
