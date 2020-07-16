@@ -32,7 +32,7 @@ class ModLog(commands.Cog):
             embed=discord.Embed(
                 title=title,
                 description=message,
-                colour=0x00ffff
+                colour=config()["colors"]["log_message"]
             ).set_author(name=f"{author} | {author.id}")
         )
 
@@ -42,7 +42,7 @@ class ModLog(commands.Cog):
                 title=f":pencil: Message Edited in #{before.channel.name}",
                 description=f"{before.author} | {before.author.id}\n"
                             f"[Jump to message]({before.jump_url})",
-                colour=discord.Colour.blue()
+                colour=config()["colors"]["edit"]
             )
                 .add_field(name="Before", value=trim(before.content))  # noqa 141
                 .add_field(name="After", value=trim(after.content))
@@ -54,7 +54,7 @@ class ModLog(commands.Cog):
             embed=discord.Embed(
                 title=f":warning: Message Filtered in #{message.channel.name}",
                 description=f"{message.author} | {message.author.id}\n",
-                colour=discord.Colour.orange()
+                colour=config()["colors"]["filter"]
             )
                 .add_field(name="Content", value=trim(message.content))  # noqa 141
                 .set_footer(text=f"Rule: {flt}")
@@ -75,7 +75,7 @@ class ModLog(commands.Cog):
             embed=discord.Embed(
                 title=f":wastebasket: Message Deleted in #{message.channel.name}",
                 description=f"{message.author} | {message.author.id}\n",
-                colour=discord.Colour.blue(),
+                colour=config()["colors"]["delete"],
                 timestamp=message.created_at
             )
                 .add_field(name="Content", value=trim(message.content))  # noqa 141
@@ -91,7 +91,7 @@ class ModLog(commands.Cog):
             embed=discord.Embed(
                 title=f":{emoji}: {typ} {st}",
                 description=f"<@!{member.id}> `{member}`",
-                colour=discord.Colour.purple()
+                colour=config()["colors"]["user"]
             )
                 .add_field(name="ID", value=str(member.id))  # noqa 141
                 .add_field(name="Joined Server", value=datetime.now().isoformat(), inline=False)
@@ -106,14 +106,14 @@ class ModLog(commands.Cog):
                 embed=discord.Embed(
                     title=f"User Kicked",
                     description=f"{member} | <@!{member.id}>\n",
-                    colour=discord.Colour.orange()
+                    colour=config()["colors"]["kick"]
                 )
             )
         await self.logchannel.send(
             embed=discord.Embed(
                 title=f"User Kicked",
                 description=f"{member} | <@!{member.id}>",
-                colour=discord.Colour.orange()
+                colour=config()["colors"]["kick"]
             )
             .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
             .add_field(name="Reason", value=reason if reason else "None", inline=False)
@@ -127,7 +127,7 @@ class ModLog(commands.Cog):
                 embed=discord.Embed(
                     title="🤫 User Muted",
                     description=f"{member} | <@!{member.id}>",
-                    colour=discord.Colour.dark_magenta()
+                    colour=config()["colors"]["mute"]
                 )
                 .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
                 .add_field(name="Type", value="Manual" if manual else f"Auto {rule}")
@@ -138,7 +138,7 @@ class ModLog(commands.Cog):
                 embed=discord.Embed(
                     title="🔊 User Unmuted",
                     description=f"{member} | <@!{member.id}>",
-                    colour=discord.Colour.dark_magenta()
+                    colour=config()["colors"]["mute"]
                 )
                 .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
                            inline=False)
@@ -150,7 +150,7 @@ class ModLog(commands.Cog):
             embed=discord.Embed(
                 title=f"User Warned",
                 description=f"{member} | <@!{member.id}>",
-                colour=discord.Colour.orange()
+                colour=config()["colors"]["warn"]
             )
             .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
             .add_field(name="Reason", value=reason if reason else "None", inline=False)
@@ -166,14 +166,14 @@ class ModLog(commands.Cog):
                 embed=discord.Embed(
                     title=f"{emoji} User {action}",
                     description=f"{member} | <@!{member.id}>\n",
-                    colour=discord.Colour.orange()
+                    colour=config()["colors"]["ban"]
                 )
             )
         await self.logchannel.send(
             embed=discord.Embed(
                 title=f"User {action}",
                 description=f"{member} | <@!{member.id}>",
-                colour=discord.Colour.orange()
+                colour=config()["colors"]["ban"]
             )
             .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
             .add_field(name="Reason", value=reason if reason else "None", inline=False)
