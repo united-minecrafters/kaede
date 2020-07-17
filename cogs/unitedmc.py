@@ -199,13 +199,13 @@ class UnitedMC(commands.Cog):
                 e.add_field(name="Default Gamemode", value=status[8])
                 await ctx.send(embed=e)
             except socket.timeout as t:
-                await ctx.send("*Oops ):*\n Looks like the ping I made to " + url + ":" + str(port) + " timed out. "
+                await ctx.send("Looks like the ping I made to " + url + ":" + str(port) + " timed out. "
                                                                 "port.")
             except socket.gaierror as e:
                 await ctx.send("I can't figure out how to reach that URL. ): Double check that it's correct.")
                 return
             except Exception as e:
-                await ctx.send("*Uh-oh D:*\n An unknown error happened"
+                await ctx.send("An unknown error happened"
                                " while I was pinging the server.")
                 print(e)
         else:
