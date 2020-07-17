@@ -262,15 +262,13 @@ class Moderation(commands.Cog):
         """
         if time <= 0: time = 10
         if await self.silence_channel(ctx.channel):
-            await self.modlog.log_message(ctx.author, "Channel silenced",
-                                          f"Channel <#{ctx.channel.id}> silenced")
+            await self.modlog.log_message("Channel silenced", f"Channel <#{ctx.channel.id}> silenced", ctx.author)
             s = f" for {time}m" if time else ""
             await ctx.send(f"Channel silenced{s}")
             await asyncio.sleep(time*60)
             await self.unsilence_channel(ctx.channel)
             await ctx.send(f"Channel unsilenced")
-            await self.modlog.log_message(ctx.author, "Channel unsilenced",
-                                          f"Channel <#{ctx.channel.id}> unsilenced")
+            await self.modlog.log_message("Channel unsilenced", f"Channel <#{ctx.channel.id}> unsilenced", ctx.author)
 
     @commands.command(aliases=["unsilence"])
     @commands.has_role(config()["roles"]["staff"])
@@ -280,18 +278,17 @@ class Moderation(commands.Cog):
         #STAFF
         """
         if await self.unsilence_channel(ctx.channel):
-            await self.modlog.log_message(ctx.author, "Channel unsilenced",
-                                          f"Channel <#{ctx.channel.id}> unsilenced")
+            await self.modlog.log_message("Channel unsilenced", f"Channel <#{ctx.channel.id}> unsilenced", ctx.author)
             await ctx.send("Channel unsilenced")
 
     async def silence_channel(self, channel: discord.TextChannel):
         if channel.overwrites_for(channel.guild.default_role).send_messages is False:
-            await self.modlog.log_message(channel.guild.me, "Channel already silenced",
-                                          f"Channel <#{channel.id}> already silenced")
+            await self.modlog.log_message("Channel already silenced", f"Channel <#{channel.id}> already silenced",
+                                          channel.guild.me)
             return False
         if channel.category and channel.category.id in config()["restricted_categories"]:
-            await self.modlog.log_message(channel.guild.me, "Channel not silenced",
-                                          f"Channel <#{channel.id}> in a restricted category")
+            await self.modlog.log_message("Channel not silenced", f"Channel <#{channel.id}> in a restricted category",
+                                          channel.guild.me)
             return False
         self.overwrite_restore[channel.id] = \
             channel.overwrites_for(channel.guild.default_role).send_messages
@@ -305,9 +302,9 @@ class Moderation(commands.Cog):
 
     async def unsilence_channel(self, channel: discord.TextChannel):
         if channel.id not in self.overwrite_restore:
-            await self.modlog.log_message(channel.guild.me, "Channel not in overwrite restore",
+            await self.modlog.log_message("Channel not in overwrite restore",
                                           f"Channel <#{channel.id}> is not in the overwrite restore. It "
-                                          f"will have to be unsilenced manually.")
+                                          f"will have to be unsilenced manually.", channel.guild.me)
             return False
         perms: discord.PermissionOverwrite = channel.overwrites_for(channel.guild.default_role)
         perms.update(send_messages=self.overwrite_restore[channel.id])

@@ -111,7 +111,7 @@ class Kaede(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Deleted!", color=0x55ff55)
-                await self.modlog.log_message(ctx.author, "Status Modification", f"```diff\n - {s}```")
+                await self.modlog.log_message("Status Modification", f"```diff\n - {s}```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 
@@ -136,7 +136,7 @@ class Kaede(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Added!", color=0x55ff55)
-                await self.modlog.log_message(ctx.author, "Status Modification", f"```diff\n + {w}```")
+                await self.modlog.log_message("Status Modification", f"```diff\n + {w}```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 
@@ -160,7 +160,7 @@ class Kaede(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Reset!", color=0x55ff55)
-                await self.modlog.log_message(ctx.author, "Status Modification", f"```# Reset #```")
+                await self.modlog.log_message("Status Modification", f"```# Reset #```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 

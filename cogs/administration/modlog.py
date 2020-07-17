@@ -1,23 +1,39 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
 
 import discord
 from discord.ext import commands
 
-from libs.config import config
+from libs.config import config, emojis
+from libs.conversions import seconds_to_str
 from libs.utils import quote, trim
-from libs.conversions import seconds_to_str, str_to_seconds
+
+AUTOKICK_STR = "Hey {user}!\n" \
+               " Thank you for your interest in {guild}, but unfortunately we are only " \
+               "allowing accounts older than {age} days to join. Even so, thanks for joining! Feel free " \
+               "to try rejoining in the future."
+
+JOIN_STR = "Welcome to {guild}, {member}!\n" \
+           "Be sure to head over to {role_channel} and read the {rules_channel}. Tell us about yourself " \
+           "in {intro_channel}. You'll need to get a Minecraft platform role to view most of the server\n\n" \
+           "If you are here about the modded server, do `!modded` and it will show you the steps you need " \
+           "to do to join. \n" \
+           "If you are here about the bedrock server, it's public! Just do `!servers` and grab the IP. \n" \
+           "{operator_role}s are here if you have any questions. Have fun!"
 
 class ModLog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.logchannel: Optional[discord.TextChannel] = None
         self.modchannel: Optional[discord.TextChannel] = None
+        self.greeting: Optional[discord.TextChannel] = None
+        self.operator: Optional[discord.Role] = None
         self.suppressed_deletion_messages = []
         self.kaede_kicks = []
         self.kaede_bans = []
         self.kaede_unbans = []
+        self.suppressed_leaves = []
         bot.loop.create_task(self._init())
 
     async def _init(self):
@@ -25,21 +41,24 @@ class ModLog(commands.Cog):
         await self.bot.wait_until_ready()
         self.logchannel = self.bot.get_channel(config()["channels"]["log"])
         self.modchannel = self.bot.get_channel(config()["channels"]["modlog"])
+        self.greeting = self.bot.get_channel(config()["channels"]["greeting"])
+        self.operator = self.bot.get_guild(586199960198971409).get_role(config()["roles"]["operator"])
         logging.info("[MODLOG] Ready")
 
-    async def log_message(self, author: discord.Member, title: str, message: str):
-        await self.logchannel.send(
-            embed=discord.Embed(
-                title=title,
-                description=message,
-                colour=config()["colors"]["log_message"]
-            ).set_author(name=f"{author} | {author.id}")
+    async def log_message(self, title: str, message: str, author: discord.Member = None, emoji: str = None):
+        embed = discord.Embed(
+            title=f"{emoji} {title}" if emoji else title,
+            description=message,
+            colour=config()["colors"]["log_message"]
         )
+        if author:
+            embed.set_author(name=f"{author} | {author.id}")
+        await self.logchannel.send(embed=embed)
 
     async def log_edit(self, before: discord.Message, after: discord.Message):
         msg = await self.logchannel.send(
             embed=discord.Embed(
-                title=f":pencil: Message Edited in #{before.channel.name}",
+                title=f"{emojis.edit} Message Edited in #{before.channel.name}",
                 description=f"{before.author} | {before.author.id}\n"
                             f"[Jump to message]({before.jump_url})",
                 colour=config()["colors"]["edit"]
@@ -52,7 +71,7 @@ class ModLog(commands.Cog):
     async def log_filter(self, flt: str, message: discord.Message):
         msg = await self.logchannel.send(
             embed=discord.Embed(
-                title=f":warning: Message Filtered in #{message.channel.name}",
+                title=f"{emojis.filter} Message Filtered in #{message.channel.name}",
                 description=f"{message.author} | {message.author.id}\n",
                 colour=config()["colors"]["filter"]
             )
@@ -73,7 +92,7 @@ class ModLog(commands.Cog):
                 return
         msg = await self.logchannel.send(
             embed=discord.Embed(
-                title=f":wastebasket: Message Deleted in #{message.channel.name}",
+                title=f"{emojis.delete} Message Deleted in #{message.channel.name}",
                 description=f"{message.author} | {message.author.id}\n",
                 colour=config()["colors"]["delete"],
                 timestamp=message.created_at
@@ -86,10 +105,36 @@ class ModLog(commands.Cog):
     async def log_user(self, member: Union[discord.Member, discord.User], join: bool):
         typ = "Bot" if member.bot else "User"
         st = "joined" if join else "left"
-        emoji = "smile" if join else "frowning"
+        if join:
+            embed = discord.Embed(
+                title=f"Welcome, {member.display_name}!",
+                description=JOIN_STR.format(
+                    guild=member.guild.name,
+                    member=member.mention,
+                    role_channel=f"<#{config()['channels']['roles']}>",
+                    rules_channel=f"<#{config()['channels']['rules']}>",
+                    intro_channel=f"<#{config()['channels']['intro']}>",
+                    operator_role=self.operator.mention
+                )
+            ).set_thumbnail(url=member.avatar_url)
+            await self.greeting.send(member.mention, delete_after=1)
+            await self.greeting.send(embed=embed)
+        else:
+            await self.greeting.send(f"{member.mention} ({member.display_name}) has left the chat.")
+        if not join:
+            if member.id in self.suppressed_leaves:
+                self.suppressed_leaves.remove(member.id)
+                return
+            if member.id in self.kaede_bans:
+                self.kaede_bans.remove(member.id)
+                return
+            if member.id in self.kaede_kicks:
+                self.kaede_kicks.remove(member.id)
+                return
+        emoji = emojis.user_join if join else emojis.user_leave
         msg = await self.logchannel.send(
             embed=discord.Embed(
-                title=f":{emoji}: {typ} {st}",
+                title=f"{emoji} {typ} {st}",
                 description=f"<@!{member.id}> `{member}`",
                 colour=config()["colors"]["user"]
             )
@@ -115,8 +160,8 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=config()["colors"]["kick"]
             )
-            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-            .add_field(name="Reason", value=reason if reason else "None", inline=False)
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+                .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     async def log_mute_action(self, member: Union[discord.Member, discord.User], *, muted: bool = True,
@@ -125,24 +170,25 @@ class ModLog(commands.Cog):
         if muted:
             await self.logchannel.send(
                 embed=discord.Embed(
-                    title="🤫 User Muted",
+                    title=f"{emojis.mute} User Muted",
                     description=f"{member} | <@!{member.id}>",
                     colour=config()["colors"]["mute"]
                 )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-                .add_field(name="Type", value="Manual" if manual else f"Auto {rule}")
-                .add_field(name="Time", value=seconds_to_str(seconds) if seconds else "N/A")
+                    .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
+                               inline=False)
+                    .add_field(name="Type", value="Manual" if manual else f"Auto {rule}")
+                    .add_field(name="Time", value=seconds_to_str(seconds) if seconds else "N/A")
             )
         else:
             await self.logchannel.send(
                 embed=discord.Embed(
-                    title="🔊 User Unmuted",
+                    title=f"{emojis.un} User Unmuted",
                     description=f"{member} | <@!{member.id}>",
                     colour=config()["colors"]["mute"]
                 )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
-                           inline=False)
-                .add_field(name="Type", value="Manual" if manual else f"Auto")
+                    .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
+                               inline=False)
+                    .add_field(name="Type", value="Manual" if manual else f"Auto")
             )
 
     async def log_warn_action(self, member: discord.Member, *, reason: str = None, staff: discord.Member = None):
@@ -152,15 +198,15 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=config()["colors"]["warn"]
             )
-            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-            .add_field(name="Reason", value=reason if reason else "None", inline=False)
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+                .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     async def log_ban_action(self, member: Union[discord.Member, discord.User], *,
                              soft: bool = False, silent: bool = False, reason: str = None,
                              banned: bool = False, staff: discord.Member = None):
         action = "Soft-Banned" if soft else (" Banned" if banned else "Unbanned")
-        emoji = ":shushing_face:" if soft else (":no_entry_sign:" if banned else ":green_circle:")
+        emoji = emojis.softban if soft else (emojis.ban if banned else emojis.unban)
         if not silent:
             await self.modchannel.send(
                 embed=discord.Embed(
@@ -175,8 +221,8 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=config()["colors"]["ban"]
             )
-            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-            .add_field(name="Reason", value=reason if reason else "None", inline=False)
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+                .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     @commands.Cog.listener()
@@ -190,6 +236,28 @@ class ModLog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        if config()["autokick"] > 0:
+            now = datetime.utcnow()
+            td = timedelta(days=config()["autokick"])
+            diff: timedelta = now - member.created_at
+            if diff < td:
+                try:
+                    await member.send(AUTOKICK_STR.format(
+                        user=member.mention,
+                        guild=member.guild.name,
+                        age=config()["autokick"]
+                    ))
+                except discord.Forbidden:
+                    dm_sent = False
+                else:
+                    dm_sent = True
+                await self.log_message("User Denied Entry", f"Member {member} ({member.id}) was denied "
+                                                            f"entry because their account was newer than "
+                                                            f"{config()['autokick']} days\n"
+                                                            f"DM was {'not ' if not dm_sent else ''}sent",
+                                       emoji=emojis.autokick_on)
+                self.suppressed_leaves.append(member.id)
+                await member.kick(reason="Autokick enabled, account too new")
         await self.log_user(member, True)
 
     @commands.Cog.listener()

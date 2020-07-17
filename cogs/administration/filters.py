@@ -80,7 +80,7 @@ class Filter(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Deleted!", color=0x55ff55)
-                await self.modlog.log_message(ctx.author, "Filter Word Modification", f"```diff\n - {s}```")
+                await self.modlog.log_message("Filter Word Modification", f"```diff\n - {s}```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 
@@ -105,7 +105,7 @@ class Filter(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Deleted!", color=0x55ff55)
-                await self.modlog.log_message(ctx.author, "Filter Token Modification", f"```diff\n - {s}```")
+                await self.modlog.log_message("Filter Token Modification", f"```diff\n - {s}```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 
@@ -128,7 +128,7 @@ class Filter(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Added!", color=0x55ff55)
-                await self.modlog.log_message(ctx.author, "Filter Token Modification", f"```diff\n + {w}```")
+                await self.modlog.log_message("Filter Token Modification", f"```diff\n + {w}```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 
@@ -151,7 +151,7 @@ class Filter(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Added!", color=0x55ff55)
-                await self.modlog.log_message(ctx.author, "Filter Word Modification", f"```diff\n + {w}```")
+                await self.modlog.log_message("Filter Word Modification", f"```diff\n + {w}```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 
