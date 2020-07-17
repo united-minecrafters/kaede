@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from datetime import datetime, timedelta
 from typing import Optional, Union
@@ -257,7 +258,9 @@ class ModLog(commands.Cog):
                                                             f"DM was {'not ' if not dm_sent else ''}sent",
                                        emoji=emojis.autokick_on)
                 self.suppressed_leaves.append(member.id)
+                await asyncio.sleep(1)
                 await member.kick(reason="Autokick enabled, account too new")
+                return
         await self.log_user(member, True)
 
     @commands.Cog.listener()
