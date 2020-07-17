@@ -1,5 +1,6 @@
 import asyncio
-from typing import Any, List
+import re
+from typing import Any, List, Union
 
 import discord
 from discord.ext import commands
@@ -29,6 +30,13 @@ def trim(st: str, length: int = 300) -> str:
     :return: the trimmed string
     """
     return st if len(st) < length else st[:length]
+
+
+async def trash_send(msg: Union[str, discord.Embed], bot: commands.Bot, ctx: commands.Context):
+    if isinstance(msg, str):
+        await trash_reaction(await ctx.send(msg), bot, ctx)
+    else:
+        await trash_reaction(await ctx.send(embed=msg), bot, ctx)
 
 
 async def trash_reaction(msg: discord.Message, bot: commands.Bot, ctx: commands.Context):
@@ -91,3 +99,40 @@ def numbered(lst: List[Any]) -> List[str]:
     Returns a numbered version of a list
     """
     return [f"{i} - {a}" for i, a in enumerate(lst)]
+
+
+def mc_to_md(text: str):
+    bold = "**"
+    italic = "*"
+    underline = "__"
+    strike = "~~"
+    stack = []
+    lines = []
+    for line in text.split("\n"):
+        s = ""
+        while text:
+            token = re.match("§[0-9a-fklmnor]|[^§]*", text).group()
+            text = text[len(token):]
+            if token.startswith("§"):
+                if token[1] == "l" and bold not in stack:
+                    s += bold
+                    stack.append(bold)
+                elif token[1] == "m" and strike not in stack:
+                    s += strike
+                    stack.append(strike)
+                elif token[1] == "n" and underline not in stack:
+                    s += underline
+                    stack.append(underline)
+                elif token[1] == "o" and italic not in stack:
+                    s += italic
+                    stack.append(italic)
+                elif token[1] == "r":
+                    while stack:
+                        s += stack.pop()
+                    s += " "
+            else:
+                s += token
+        while stack:
+            s += stack.pop()
+        lines.append(s)
+    return "\n".join(lines)
