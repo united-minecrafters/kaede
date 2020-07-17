@@ -1,7 +1,8 @@
 import asyncio
 import datetime
 import logging
-from typing import List, Optional, Union
+from copy import copy
+from typing import Dict, List, Optional, Union
 
 import discord
 from discord.ext import commands
@@ -45,6 +46,8 @@ class Moderation(commands.Cog):
         self.user_cache = {}
         self.active_mutes: List[int] = []
         self.muted_role: Optional[discord.Role] = None
+        self.staff: Optional[discord.Role] = None
+        self.overwrite_restore: Dict[int, Optional[bool]] = {}
 
     async def _init(self):
         logging.info("[MOD] Waiting for bot")
@@ -52,6 +55,7 @@ class Moderation(commands.Cog):
         self.modlog = self.bot.get_cog("ModLog")
         self.punishments = self.bot.get_cog("Punishments")
         self.muted_role = self.bot.get_guild(586199960198971409).get_role(config()["roles"]["muted"])
+        self.staff = self.bot.get_guild(586199960198971409).get_role(config()["roles"]["staff"])
         for i in self.muted_role.members:
             self.active_mutes.append(i.id)
         logging.info("[MOD] Ready")
@@ -110,6 +114,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str = None):
+        """
+        #STAFF
+        """
         self.modlog.kaede_kicks.append(member.id)
         await member.kick(reason=reason)
         await self.modlog.log_kick_action(member, reason=reason, staff=ctx.author)
@@ -118,6 +125,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def skick(self, ctx: commands.Context, member: discord.Member, *, reason: str = None):
+        """
+        #STAFF
+        """
         self.modlog.kaede_kicks.append(member.id)
         await member.kick(reason=reason)
         await self.modlog.log_kick_action(member, silent=True, reason=reason, staff=ctx.author)
@@ -125,6 +135,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx: commands.Context, user: Union[discord.Member, int], *, reason: str = None):
+        """
+        #STAFF
+        """
         if isinstance(user, int):
             try:
                 if user in self.user_cache:
@@ -152,6 +165,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def sban(self, ctx: commands.Context, user: Union[discord.Member, int], *, reason: str = None):
+        """
+        #STAFF
+        """
         if isinstance(user, int):
             try:
                 if user in self.user_cache:
@@ -175,6 +191,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def softban(self, ctx: commands.Context, member: discord.Member, *, reason: str = None):
+        """
+        #STAFF
+        """
         await member.send(f"You have been softbanned from {ctx.guild.name}. This is not a ban, but a kick+message "
                           f"delete.")
         self.modlog.kaede_bans.append(member.id)
@@ -183,9 +202,12 @@ class Moderation(commands.Cog):
         await member.unban(reason=f"{ctx.author} | Soft Ban")
         await self.modlog.log_ban_action(member, soft=True, silent=True, staff=ctx.author, reason=reason)
 
-    @commands.command()
+    @commands.command(aliases=["mhelp"])
     @commands.has_role(config()["roles"]["staff"])
     async def modhelp(self, ctx: commands.Context):
+        """
+        #STAFF
+        """
         msg: discord.Message = await ctx.send(
             embed=discord.Embed(
                 title="United Minecrafters Moderation Commands",
@@ -230,6 +252,65 @@ class Moderation(commands.Cog):
                                 .get_role(int(config()["roles"]["muted"])), reason=f"Unmuted by {ctx.author}")
         await self.modlog.log_mute_action(user, muted=False, manual=True, seconds=0, staff=ctx.author)
         await ctx.send(f"Unmuted {user}")
+
+    @commands.command(aliases=["silence"])
+    @commands.has_role(config()["roles"]["staff"])
+    async def sh(self, ctx: commands.Context, time: int = 10):
+        """
+        Silences a channel, so that only staff can speak. The default time is 10m
+        #STAFF
+        """
+        if time <= 0: time = 10
+        if await self.silence_channel(ctx.channel):
+            await self.modlog.log_message("Channel silenced", f"Channel <#{ctx.channel.id}> silenced", ctx.author)
+            s = f" for {time}m" if time else ""
+            await ctx.send(f"Channel silenced{s}")
+            await asyncio.sleep(time*60)
+            await self.unsilence_channel(ctx.channel)
+            await ctx.send(f"Channel unsilenced")
+            await self.modlog.log_message("Channel unsilenced", f"Channel <#{ctx.channel.id}> unsilenced", ctx.author)
+
+    @commands.command(aliases=["unsilence"])
+    @commands.has_role(config()["roles"]["staff"])
+    async def unsh(self, ctx: commands.Context):
+        """
+        Unsilences a channel
+        #STAFF
+        """
+        if await self.unsilence_channel(ctx.channel):
+            await self.modlog.log_message("Channel unsilenced", f"Channel <#{ctx.channel.id}> unsilenced", ctx.author)
+            await ctx.send("Channel unsilenced")
+
+    async def silence_channel(self, channel: discord.TextChannel):
+        if channel.overwrites_for(channel.guild.default_role).send_messages is False:
+            await self.modlog.log_message("Channel already silenced", f"Channel <#{channel.id}> already silenced",
+                                          channel.guild.me)
+            return False
+        if channel.category and channel.category.id in config()["restricted_categories"]:
+            await self.modlog.log_message("Channel not silenced", f"Channel <#{channel.id}> in a restricted category",
+                                          channel.guild.me)
+            return False
+        self.overwrite_restore[channel.id] = \
+            channel.overwrites_for(channel.guild.default_role).send_messages
+        perms: discord.PermissionOverwrite = channel.overwrites_for(channel.guild.default_role)
+        perms.update(send_messages=False)
+        await channel.set_permissions(channel.guild.default_role, overwrite=perms)
+        perms: discord.PermissionOverwrite = channel.overwrites_for(self.staff)
+        perms.update(send_messages=True)
+        await channel.set_permissions(self.staff, overwrite=perms)
+        return True
+
+    async def unsilence_channel(self, channel: discord.TextChannel):
+        if channel.id not in self.overwrite_restore:
+            await self.modlog.log_message("Channel not in overwrite restore",
+                                          f"Channel <#{channel.id}> is not in the overwrite restore. It "
+                                          f"will have to be unsilenced manually.", channel.guild.me)
+            return False
+        perms: discord.PermissionOverwrite = channel.overwrites_for(channel.guild.default_role)
+        perms.update(send_messages=self.overwrite_restore[channel.id])
+        await channel.set_permissions(channel.guild.default_role, overwrite=perms)
+        del self.overwrite_restore[channel.id]
+        return True
 
     async def bot_unmute(self, user: discord.Member):
         if user.id not in self.active_mutes:

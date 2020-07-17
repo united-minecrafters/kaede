@@ -4,6 +4,8 @@
       <w>addstatus</w>
       <w>ansura</w>
       <w>asctime</w>
+      <w>autokick</w>
+      <w>automod</w>
       <w>delstatus</w>
       <w>disputils</w>
       <w>hola</w>
@@ -26,6 +28,7 @@
       <w>unban</w>
       <w>unbans</w>
       <w>unitedmc</w>
+      <w>unmute</w>
       <w>warnlog</w>
     </words>
   </dictionary>
