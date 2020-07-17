@@ -26,6 +26,7 @@ class Protection(commands.Cog):
         return emojis.autokick_off if config()["autokick"] == 0 else emojis.autokick_on
 
     @commands.command(aliases=["ak"])
+    @commands.has_role(config()["roles"]["staff"])
     async def autokick(self, ctx: commands.Context, days: int = None):
         if days is None:
             st = "off" if config()["autokick"] == 0 else f"kicking accounts newer than " \
