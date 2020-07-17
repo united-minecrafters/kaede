@@ -28,6 +28,13 @@ class Protection(commands.Cog):
     @commands.command(aliases=["ak"])
     @commands.has_role(config()["roles"]["staff"])
     async def autokick(self, ctx: commands.Context, days: int = None):
+        """
+        Set the threshold age to kick new accounts at
+        !ak - shows current state
+        !ak 4 - set to 4 days
+        !ak 0 - turn off
+        #STAFF
+        """
         if days is None:
             st = "off" if config()["autokick"] == 0 else f"kicking accounts newer than " \
                                                          f"{config()['autokick']} days"
