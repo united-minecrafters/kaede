@@ -9,8 +9,8 @@ import subprocess
 from typing import Dict
 
 import discord
-from discord.ext import commands, tasks
 import mcstatus
+from discord.ext import commands, tasks
 
 from libs.mcrcon import MinecraftClient
 from libs.utils import mc_to_md
@@ -40,10 +40,11 @@ async def ping(url: str):
         print(type(e))
         return "ERR", "ERR"
 
+
 class UnitedMC(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        logging.info(f"[UNITED] Loading server list")
+        logging.info("[UNITED] Loading server list")
         self.servers = {}
         self._load_server_list()
 
@@ -96,10 +97,9 @@ class UnitedMC(commands.Cog):
         except ConnectionRefusedError:
             await ctx.send(embed=discord.Embed(
                 title=f"{server} - Error",
-                description=f"An error has occurred. Is the server online?",
-                color=discord.Colour.red())
-                           .set_footer(text="ConnectionRefusedError"),
-                           )
+                description="An error has occurred. Is the server online?",
+                color=discord.Colour.red()
+            ).set_footer(text="ConnectionRefusedError"))
 
     @commands.command()
     async def send(self, ctx: commands.Context, server: str, *, cmd: str):
@@ -198,10 +198,10 @@ class UnitedMC(commands.Cog):
                 e.add_field(name="World Name", value=re.sub("§.", "", status[7]))
                 e.add_field(name="Default Gamemode", value=status[8])
                 await ctx.send(embed=e)
-            except socket.timeout as t:
+            except socket.timeout:
                 await ctx.send("Looks like the ping I made to " + url + ":" + str(port) + " timed out. "
-                                                                "port.")
-            except socket.gaierror as e:
+                                                                                          "port.")
+            except socket.gaierror:
                 await ctx.send("I can't figure out how to reach that URL. ): Double check that it's correct.")
                 return
             except Exception as e:
@@ -219,6 +219,7 @@ class UnitedMC(commands.Cog):
             e.add_field(name="Version", value=status.version.name)
             e.add_field(name="Protocol", value="v" + str(status.version.protocol))
             await ctx.send(embed=e)
+
 
 def setup(bot):
     bot.add_cog(UnitedMC(bot))

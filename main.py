@@ -38,6 +38,7 @@ initial_extensions = ["cogs.search",
                       "cogs.administration.punishments",
                       "cogs.misc",
                       "cogs.help"]
+
 if __name__ == '__main__':
     for ext in initial_extensions:
         logging.info(f"[BOT] Loading {ext}")
@@ -47,7 +48,7 @@ if __name__ == '__main__':
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.do_not_disturb, activity=discord.Game(name="Hey there!"))
-    logging.info(f"[BOT] Kaede online!")
+    logging.info("[BOT] Kaede online!")
 
 
 @bot.event

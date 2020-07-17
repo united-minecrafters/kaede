@@ -23,6 +23,7 @@ JOIN_STR = "Welcome to {guild}, {member}!\n" \
            "If you are here about the bedrock server, it's public! Just do `!servers` and grab the IP. \n" \
            "{operator_role}s are here if you have any questions. Have fun!"
 
+
 class ModLog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -149,19 +150,19 @@ class ModLog(commands.Cog):
         if not silent:
             await self.modchannel.send(
                 embed=discord.Embed(
-                    title=f"User Kicked",
+                    title="User Kicked",
                     description=f"{member} | <@!{member.id}>\n",
                     colour=config()["colors"]["kick"]
                 )
             )
         await self.logchannel.send(
             embed=discord.Embed(
-                title=f"User Kicked",
+                title="User Kicked",
                 description=f"{member} | <@!{member.id}>",
                 colour=config()["colors"]["kick"]
             )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-                .add_field(name="Reason", value=reason if reason else "None", inline=False)
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     async def log_mute_action(self, member: Union[discord.Member, discord.User], *, muted: bool = True,
@@ -174,10 +175,10 @@ class ModLog(commands.Cog):
                     description=f"{member} | <@!{member.id}>",
                     colour=config()["colors"]["mute"]
                 )
-                    .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
-                               inline=False)
-                    .add_field(name="Type", value="Manual" if manual else f"Auto {rule}")
-                    .add_field(name="Time", value=seconds_to_str(seconds) if seconds else "N/A")
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
+                           inline=False)
+                .add_field(name="Type", value="Manual" if manual else f"Auto {rule}")
+                .add_field(name="Time", value=seconds_to_str(seconds) if seconds else "N/A")
             )
         else:
             await self.logchannel.send(
@@ -186,20 +187,20 @@ class ModLog(commands.Cog):
                     description=f"{member} | <@!{member.id}>",
                     colour=config()["colors"]["mute"]
                 )
-                    .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
-                               inline=False)
-                    .add_field(name="Type", value="Manual" if manual else f"Auto")
+                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None",
+                           inline=False)
+                .add_field(name="Type", value="Manual" if manual else "Auto")
             )
 
     async def log_warn_action(self, member: discord.Member, *, reason: str = None, staff: discord.Member = None):
         await self.logchannel.send(
             embed=discord.Embed(
-                title=f"User Warned",
+                title="User Warned",
                 description=f"{member} | <@!{member.id}>",
                 colour=config()["colors"]["warn"]
             )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-                .add_field(name="Reason", value=reason if reason else "None", inline=False)
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     async def log_ban_action(self, member: Union[discord.Member, discord.User], *,
@@ -221,8 +222,8 @@ class ModLog(commands.Cog):
                 description=f"{member} | <@!{member.id}>",
                 colour=config()["colors"]["ban"]
             )
-                .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
-                .add_field(name="Reason", value=reason if reason else "None", inline=False)
+            .add_field(name="Staff Member", value=f"{staff} | <@!{staff.id}>" if staff else "None", inline=False)
+            .add_field(name="Reason", value=reason if reason else "None", inline=False)
         )
 
     @commands.Cog.listener()
@@ -273,7 +274,7 @@ class ModLog(commands.Cog):
         if user.id in self.kaede_bans:
             del self.kaede_bans[self.kaede_bans.index(user.id)]
             return
-        await self.log_ban_action(user, reason=reason, banned=True, staff=staff)
+        await self.log_ban_action(user, reason=reason, banned=True, staff=staff, silent=silent)
 
     # noinspection PyUnusedLocal
     @commands.Cog.listener()
@@ -282,7 +283,7 @@ class ModLog(commands.Cog):
         if user.id in self.kaede_unbans:
             del self.kaede_unbans[self.kaede_unbans.index(user.id)]
             return
-        await self.log_ban_action(user, reason=reason, staff=staff)
+        await self.log_ban_action(user, reason=reason, staff=staff, silent=silent)
 
 
 def setup(bot: commands.Bot) -> None:

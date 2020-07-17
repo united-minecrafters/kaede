@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import logging
-from copy import copy
 from typing import Dict, List, Optional, Union
 
 import discord
@@ -36,6 +35,7 @@ _ _
 Non-silent mod logs go to <#{config()["channels"]["log"]}> with basic info
 All mod logs go to <#{config()["channels"]["modlog"]}> with detailed info
 """
+
 
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -260,14 +260,15 @@ class Moderation(commands.Cog):
         Silences a channel, so that only staff can speak. The default time is 10m
         #STAFF
         """
-        if time <= 0: time = 10
+        if time <= 0:
+            time = 10
         if await self.silence_channel(ctx.channel):
             await self.modlog.log_message("Channel silenced", f"Channel <#{ctx.channel.id}> silenced", ctx.author)
             s = f" for {time}m" if time else ""
             await ctx.send(f"Channel silenced{s}")
-            await asyncio.sleep(time*60)
+            await asyncio.sleep(time * 60)
             await self.unsilence_channel(ctx.channel)
-            await ctx.send(f"Channel unsilenced")
+            await ctx.send("Channel unsilenced")
             await self.modlog.log_message("Channel unsilenced", f"Channel <#{ctx.channel.id}> unsilenced", ctx.author)
 
     @commands.command(aliases=["unsilence"])
@@ -316,7 +317,7 @@ class Moderation(commands.Cog):
         if user.id not in self.active_mutes:
             return
         del self.active_mutes[self.active_mutes.index(user.id)]
-        await user.remove_roles(self.muted_role, reason=f"Unmuted by Bot")
+        await user.remove_roles(self.muted_role, reason="Unmuted by Bot")
         await self.modlog.log_mute_action(user, muted=False, seconds=0)
 
     async def bot_mute(self, user: discord.Member, rule: str, seconds: int):
@@ -333,7 +334,7 @@ class Moderation(commands.Cog):
             user=user.id,
             staff=self.bot.user.id
         ))
-        await user.add_roles(self.muted_role, reason=f"Muted by Bot")
+        await user.add_roles(self.muted_role, reason="Muted by Bot")
         await self.modlog.log_mute_action(user, seconds=seconds, rule=rule)
         self.bot.loop.call_later(seconds,
                                  lambda: asyncio.ensure_future(self.bot_unmute(user)))

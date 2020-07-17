@@ -1,14 +1,13 @@
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
-import asyncio
 import discord
 from discord.ext import commands
 from disputils import BotConfirmation, BotEmbedPaginator
 
-import cogs.administration.modlog
 import cogs.administration.moderation
+import cogs.administration.modlog
 from libs.config import config, save_config
 from libs.utils import numbered, pages, quote
 
@@ -31,7 +30,6 @@ class Filter(commands.Cog):
             )
             self._cd_vals[rule] = (float(config()["automod"][rule]["number"]),
                                    float(config()["automod"][rule]["number"]))
-
 
     async def _init(self):
         logging.info("[FILTER] Waiting for bot")
@@ -161,7 +159,7 @@ class Filter(commands.Cog):
             await self.on_message(after)
 
     @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message):  # noqa: c901
         if message.author.bot:
             return
         if not message.guild:
@@ -175,7 +173,7 @@ class Filter(commands.Cog):
 
         if self._cooldowns["burst"].get_bucket(message).update_rate_limit():
             dur = int(config()["automod"]["punishment"]["duration"])
-            if message.author.id not in self.moderation.active_mutes: # prevent race condition
+            if message.author.id not in self.moderation.active_mutes:  # prevent race condition
                 await self.moderation.bot_mute(message.author, "burst", dur)
                 await message.channel.send(f"🤫 {message.author} muted for {dur}s (burst)")
             return

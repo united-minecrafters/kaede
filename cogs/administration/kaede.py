@@ -148,7 +148,7 @@ class Kaede(commands.Cog):
         #OWNER
         """
         conf = BotConfirmation(ctx, 0x5555ff)
-        await conf.confirm(f'Reset status list?')
+        await conf.confirm('Reset status list?')
 
         if conf.confirmed:
             try:
@@ -160,7 +160,7 @@ class Kaede(commands.Cog):
                 await conf.update("An error occurred", color=0xffff00)
             else:
                 await conf.update("Reset!", color=0x55ff55)
-                await self.modlog.log_message("Status Modification", f"```# Reset #```", ctx.author)
+                await self.modlog.log_message("Status Modification", "```# Reset #```", ctx.author)
         else:
             await conf.update("Canceled", color=0xff5555)
 
