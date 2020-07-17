@@ -121,8 +121,6 @@ class ModLog(commands.Cog):
             await self.greeting.send(member.mention, delete_after=1)
             await self.greeting.send(embed=embed)
         else:
-            await self.greeting.send(f"{member.mention} ({member.display_name}) has left the chat.")
-        if not join:
             if member.id in self.suppressed_leaves:
                 self.suppressed_leaves.remove(member.id)
                 return
@@ -132,6 +130,7 @@ class ModLog(commands.Cog):
             if member.id in self.kaede_kicks:
                 self.kaede_kicks.remove(member.id)
                 return
+            await self.greeting.send(f"{member.mention} ({member.display_name}) has left the chat.")
         emoji = emojis.user_join if join else emojis.user_leave
         msg = await self.logchannel.send(
             embed=discord.Embed(
