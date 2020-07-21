@@ -56,7 +56,7 @@ class CustomReactions(commands.Cog):
     def _search(self, trigger: str = None):
         cs_list = []
         for n, r in enumerate(self.reactions):
-            if trigger == r[0] or not trigger:
+            if trigger == r[0] or trigger is None:
                 cs_list.append(f"{n + 1}: **{r[0]}** - {r[1]}")
         return cs_list
 
