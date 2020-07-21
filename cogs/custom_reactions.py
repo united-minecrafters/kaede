@@ -26,6 +26,8 @@ class CustomReactions(commands.Cog):
         self.reactions = []
         with open("configs/custom_reactions.csv") as fp:
             for i in fp.readlines():
+                if not i.strip():
+                    continue
                 entry = i.strip().split("\t")
                 self.reactions.append((entry[0], entry[1]))
 
