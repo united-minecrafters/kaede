@@ -11,7 +11,7 @@ from discord.ext import commands
 from libs import utils
 from libs.config import config
 
-os.chdir(os.path.dirname(sys.argv[0]))
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 logging.addLevelName((logging.DEBUG + logging.INFO) // 2, "DEBUG2")
 
