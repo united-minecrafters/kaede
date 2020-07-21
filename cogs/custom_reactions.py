@@ -29,7 +29,7 @@ class CustomReactions(commands.Cog):
                 if not i.strip():
                     continue
                 entry = i.strip().split("\t")
-                self.reactions.append((entry[0], entry[1]))
+                self.reactions.append((entry[0].lower(), entry[1]))
 
     @commands.has_role(config()["roles"]["staff"])
     @commands.command(aliases=["acr"])
@@ -40,7 +40,7 @@ class CustomReactions(commands.Cog):
         !placeholders
         #STAFF
         """
-        self.reactions.append((trigger, response))
+        self.reactions.append((trigger.lower(), response))
         await ctx.send(f"Added {trigger}: {response}")
         self._save_cr()
 
@@ -108,7 +108,7 @@ class CustomReactions(commands.Cog):
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
-        reactions = self._search(message.content)
+        reactions = self._search(message.content.lower())
         if len(reactions) == 0:
             return
         sel = random.choice(reactions)
