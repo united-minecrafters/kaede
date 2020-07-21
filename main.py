@@ -2,6 +2,7 @@ import logging
 import os
 import random
 import re
+import sys
 
 import discord
 import dotenv
@@ -9,6 +10,8 @@ from discord.ext import commands
 
 from libs import utils
 from libs.config import config
+
+os.chdir(os.path.dirname(sys.argv[0]))
 
 logging.addLevelName((logging.DEBUG + logging.INFO) // 2, "DEBUG2")
 
