@@ -36,6 +36,7 @@ class CustomReactions(commands.Cog):
         """
         Adds a custom reaction
         !acr trigger response
+        !placeholders
         #STAFF
         """
         self.reactions.append((trigger, response))
@@ -80,34 +81,48 @@ class CustomReactions(commands.Cog):
         """
         async def del_confirm(t: int):
             conf = BotConfirmation(ctx, 0x0000aa)
-            await conf.confirm(f"Delete {t} (**{self.reactions[t][0]}**: {self.reactions[t][1]})?")
+            await conf.confirm(f"Delete {t} (**{self.reactions[t-1][0]}**: {self.reactions[t-1][1]})?")
             if conf.confirmed:
-                await conf.update(f"{t} (**{self.reactions[t][0]}**: {self.reactions[t][1]}) deleted",
+                await conf.update(f"{t} (**{self.reactions[t-1][0]}**: {self.reactions[t-1][1]}) deleted",
                                   color=0x00aa00)
-                del self.reactions[t]
+                del self.reactions[t-1]
                 self._save_cr()
             else:
                 await conf.update("Cancelled", color=0xaa0000)
         if isinstance(trigger, int):
             if 0 <= trigger - 1 < len(self.reactions):
-                return del_confirm(trigger)
+                return await del_confirm(trigger)
             else:
                 return await ctx.send("Invalid reaction, do `!lcr`")
         reactions = self._search(trigger)
         if len(reactions) == 0:
             return await ctx.send("Invalid reaction, do `!lcr`")
         if len(reactions) == 1:
-            return del_confirm(int(reactions[0].split(":")[0]))
+            return await del_confirm(int(reactions[0].split(":")[0]))
         await ctx.send(f"There's more than one match. Do `!lcr {trigger}` to find the number to delete.")
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
         reactions = self._search(message.content)
         if len(reactions) == 0:
             return
         sel = random.choice(reactions)
         num = int(sel.split(":")[0])
-        await message.channel.send(self.reactions[num-1][1])
+        await message.channel.send(self.reactions[num-1][1]
+                                   .replace("%user.mention%", message.author.mention)
+                                   .replace("%user%", str(message.author))
+                                   .replace("%guild%", message.guild.name))
+
+    @commands.command()
+    async def placeholders(self, ctx: commands.Context):
+        await trash_send(discord.Embed(
+            title="Placeholders",
+            description="`%user.mention%` - mentions a user\n"
+                        "`%user%` - username#0000\n"
+                        "`%guild%` - guild name"
+        ), self.bot, ctx)
 
 def setup(bot):
     bot.add_cog(CustomReactions(bot))
