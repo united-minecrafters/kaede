@@ -1,13 +1,13 @@
 import logging
 import random
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 
 import discord
 from discord.ext import commands
-from disputils import BotEmbedPaginator, BotConfirmation
+from disputils import BotConfirmation, BotEmbedPaginator
 
 from libs.config import config
-from libs.utils import numbered, pages, trash_send
+from libs.utils import pages, trash_send
 
 
 class CustomReactions(commands.Cog):
@@ -17,7 +17,6 @@ class CustomReactions(commands.Cog):
         logging.info("[CUS] Loading config")
         self._load_cr()
         logging.info(f"[CUS] Found {len(self.reactions)} custom reactions")
-
 
     def _save_cr(self):
         with open("configs/custom_reactions.csv", "w") as fp:
@@ -79,16 +78,18 @@ class CustomReactions(commands.Cog):
         """
         Deletes a custom reaction by index or trigger
         """
+
         async def del_confirm(t: int):
             conf = BotConfirmation(ctx, 0x0000aa)
-            await conf.confirm(f"Delete {t} (**{self.reactions[t-1][0]}**: {self.reactions[t-1][1]})?")
+            await conf.confirm(f"Delete {t} (**{self.reactions[t - 1][0]}**: {self.reactions[t - 1][1]})?")
             if conf.confirmed:
-                await conf.update(f"{t} (**{self.reactions[t-1][0]}**: {self.reactions[t-1][1]}) deleted",
+                await conf.update(f"{t} (**{self.reactions[t - 1][0]}**: {self.reactions[t - 1][1]}) deleted",
                                   color=0x00aa00)
-                del self.reactions[t-1]
+                del self.reactions[t - 1]
                 self._save_cr()
             else:
                 await conf.update("Cancelled", color=0xaa0000)
+
         if isinstance(trigger, int):
             if 0 <= trigger - 1 < len(self.reactions):
                 return await del_confirm(trigger)
@@ -110,7 +111,7 @@ class CustomReactions(commands.Cog):
             return
         sel = random.choice(reactions)
         num = int(sel.split(":")[0])
-        await message.channel.send(self.reactions[num-1][1]
+        await message.channel.send(self.reactions[num - 1][1]
                                    .replace("%user.mention%", message.author.mention)
                                    .replace("%user%", str(message.author))
                                    .replace("%guild%", message.guild.name))
@@ -123,6 +124,7 @@ class CustomReactions(commands.Cog):
                         "`%user%` - username#0000\n"
                         "`%guild%` - guild name"
         ), self.bot, ctx)
+
 
 def setup(bot):
     bot.add_cog(CustomReactions(bot))
