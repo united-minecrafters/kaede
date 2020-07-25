@@ -43,7 +43,9 @@ class Kaede(commands.Cog):
             except discord.HTTPException:
                 pass
 
-        # For this error example we check to see where it came from...
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"{ctx.author.mention}, you're on cooldown. Try again in {round(error.retry_after, 1)}s")
+
         elif isinstance(error, commands.BadArgument):
             await ctx.send(f"An error occured while executing the command\n{error}")
 
