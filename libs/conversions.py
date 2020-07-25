@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-
-
 class TimeDelta:
     def __init__(self, *, seconds: int = 0, minutes: int = 0, hours: int = 0):
         self.seconds = seconds
@@ -33,13 +30,9 @@ class TimeDelta:
         return f"**{self.hours}**h**{self.minutes}**m**{self.seconds}**s"
 
 
-
 def str_to_seconds(t: str) -> int:
     return 0
 
 
 def seconds_to_str(seconds: int) -> str:
     return f"{seconds}s"
-
-
-
