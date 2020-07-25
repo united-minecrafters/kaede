@@ -1,12 +1,13 @@
+import logging
 from typing import Optional, Union
 
 import discord
 from discord.ext import commands
-import logging
 
 import cogs.administration.modlog
 from libs.config import config
 from libs.conversions import TimeDelta
+
 
 class Server(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -78,13 +79,13 @@ class Server(commands.Cog):
                 raise commands.BadArgument("Voice channel not found")
         old = channel.bitrate
         try:
-            await channel.edit(reason=str(ctx.author), bitrate=rate*1000)
+            await channel.edit(reason=str(ctx.author), bitrate=rate * 1000)
         except discord.HTTPException as e:
-            await ctx.send(f"An error occurred while executing the command")
+            await ctx.send("An error occurred while executing the command")
             raise e
         await ctx.send(f"Bitrate changed to {rate}kbps in {channel.name}")
         await self.modlog.log_message(title="Bitrate changed",
-                                      message=f"Bitrate in {channel.name} changed from {old/1000}kbps "
+                                      message=f"Bitrate in {channel.name} changed from {old / 1000}kbps "
                                               f"to {rate}kbps by {ctx.author.mention}",
                                       emoji=":loudspeaker:")
 
@@ -114,14 +115,13 @@ class Server(commands.Cog):
         try:
             await channel.edit(reason=str(ctx.author), user_limit=num)
         except discord.HTTPException as e:
-            await ctx.send(f"An error occurred while executing the command")
+            await ctx.send("An error occurred while executing the command")
             raise e
         await ctx.send(f"User limit changed to {num}kbps in {channel.name}")
         await self.modlog.log_message(title="User limit changed",
                                       message=f"User limit in {channel.name} changed from {old}kbps "
                                               f"to {num}kbps by {ctx.author.mention}",
                                       emoji=":loudspeaker:")
-
 
     @commands.has_role(config()["roles"]["admin"])
     @commands.cooldown(1, 60, commands.BucketType.member)
@@ -140,7 +140,6 @@ class Server(commands.Cog):
         await self.modlog.log_message(title="Channel name changed",
                                       message=f"{channel.mention}'s name changed from {old} to {channel.name} "
                                               f"by {ctx.author.mention}")
-
 
 
 def setup(bot: commands.Bot) -> None:
