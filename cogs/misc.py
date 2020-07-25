@@ -4,7 +4,7 @@ import os
 import sys
 import traceback
 import random
-from typing import Optional
+from typing import List, Optional
 
 import aiohttp
 import discord
@@ -25,21 +25,29 @@ class Misc(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.modlog: Optional[cogs.administration.modlog.ModLog] = None
+        self.imgur = os.getenv("IMGUR")
+        self.marvs: List[str] = []
         bot.loop.create_task(self._init())
 
     async def _init(self):
         logging.info("[MISC] Waiting for bot")
         await self.bot.wait_until_ready()
         self.modlog = self.bot.get_cog("ModLog")
+        async with aiohttp.ClientSession() as sess:
+            async with sess.get("https://api.imgur.com/3/gallery/album/584cU9i",
+                                headers={
+                                    "User-Agent":
+                                        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 "
+                                        "(KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
+                                    "Authorization": f"Client-ID {self.imgur}"}
+                                ) as resp:
+                self.marvs = [r["link"] for r in (await resp.json())["data"]["images"]]
         logging.info("[MISC] Ready")
 
     @commands.command(aliases=["gremlin"])
     async def marv(self, ctx: commands.Context):
-        urls = ["https://i.imgur.com/OEJwNrn.jpeg",
-                "https://i.imgur.com/1pfWfZF.jpeg",
-                "https://i.imgur.com/Le6kVvs.jpeg"]
         await trash_send(discord.Embed(title="Arf")
-                         .set_image(url=random.choice(urls)), self.bot, ctx)
+                         .set_image(url=random.choice(self.marvs)), self.bot, ctx)
 
     @commands.command()
     async def tiktok(self, ctx: commands.Context, link: str):
