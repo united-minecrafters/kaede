@@ -58,6 +58,8 @@ class ModLog(commands.Cog):
         await self.logchannel.send(embed=embed)
 
     async def log_edit(self, before: discord.Message, after: discord.Message):
+        if config()["logging"]["ignore_bot"] and before.author.bot:
+            return
         msg = await self.logchannel.send(
             embed=discord.Embed(
                 title=f"{emojis.edit} Message Edited in #{before.channel.name}",

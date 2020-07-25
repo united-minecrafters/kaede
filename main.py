@@ -38,6 +38,7 @@ initial_extensions = ["cogs.search",
                       "cogs.administration.modlog",
                       "cogs.administration.kaede",
                       "cogs.administration.punishments",
+                      "cogs.administration.server",
                       "cogs.custom_reactions",
                       "cogs.misc",
                       "cogs.help"]
