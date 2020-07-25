@@ -5,6 +5,8 @@ from typing import Any, List, Union
 import discord
 from discord.ext import commands
 
+from libs.config import config
+
 NBSP = "͔"
 
 
@@ -18,6 +20,11 @@ def letter_emoji(a: str):
 
 def quote(st: str):
     return "\n".join(f"> {n}" for n in st.split("\n"))
+
+
+def is_staff(ctx: commands.Context, user: discord.User):
+    member: discord.Member = ctx.guild.get_member(user.id)
+    return config()["roles"]["staff"] in [r.id for r in member.roles]
 
 
 def trim(st: str, length: int = 300) -> str:
@@ -50,7 +57,11 @@ async def trash_reaction(msg: discord.Message, bot: commands.Bot, ctx: commands.
     """
 
     def check(_reaction: discord.Reaction, _user: discord.User):
-        return _user.id == ctx.author.id and _reaction.message.id == msg.id and str(_reaction) == "🗑️"
+        return all([
+            _user.id == ctx.author.id or is_staff(ctx, _user),
+            _reaction.message.id == msg.id,
+            str(_reaction) == "🗑️"
+        ])
 
     await msg.add_reaction("🗑️")
     try:
