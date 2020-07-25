@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import traceback
+import random
 from typing import Optional
 
 import aiohttp
@@ -13,6 +14,7 @@ from discord.ext import commands
 from discord.utils import escape_markdown, escape_mentions
 
 import cogs.administration.modlog
+from libs.utils import trash_send
 
 
 def sanitize(s):
@@ -30,6 +32,14 @@ class Misc(commands.Cog):
         await self.bot.wait_until_ready()
         self.modlog = self.bot.get_cog("ModLog")
         logging.info("[MISC] Ready")
+
+    @commands.command(aliases=["gremlin"])
+    async def marv(self, ctx: commands.Context):
+        urls = ["https://i.imgur.com/OEJwNrn.jpeg",
+                "https://i.imgur.com/1pfWfZF.jpeg",
+                "https://i.imgur.com/Le6kVvs.jpeg"]
+        await trash_send(discord.Embed(title="Arf")
+                         .set_image(url=random.choice(urls)), self.bot, ctx)
 
     @commands.command()
     async def tiktok(self, ctx: commands.Context, link: str):
