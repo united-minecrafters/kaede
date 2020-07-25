@@ -1,20 +1,10 @@
-import json
 import logging
-import os
-import sys
-import traceback
-import random
-from typing import List, Optional
+from typing import Optional
 
-import aiohttp
-import discord
-from bs4 import BeautifulSoup
-from bs4.element import Tag
 from discord.ext import commands
 from discord.utils import escape_markdown, escape_mentions
 
 import cogs.administration.modlog
-from libs.utils import trash_send
 
 
 def sanitize(s):
