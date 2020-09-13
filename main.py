@@ -41,6 +41,7 @@ initial_extensions = ["cogs.search",
                       "cogs.administration.server",
                       "cogs.custom_reactions",
                       "cogs.misc",
+                      "cogs.hypixel",
                       "cogs.help"]
 
 if __name__ == '__main__':
