@@ -26,12 +26,16 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 
-bot = commands.Bot(command_prefix=get_prefix)
+bot = commands.Bot(command_prefix=get_prefix,
+                   intents=discord.Intents(guilds=True,
+                                           messages=True,
+                                           members=True,
+                                           reactions=True))
 bot.remove_command('help')
 
 initial_extensions = ["cogs.search",
                       "cogs.unitedmc",
-                      "cogs.administration.protection",
+                      #"cogs.administration.protection",
                       "cogs.administration.administration",
                       "cogs.administration.filters",
                       "cogs.administration.moderation",
@@ -39,8 +43,8 @@ initial_extensions = ["cogs.search",
                       "cogs.administration.kaede",
                       "cogs.administration.punishments",
                       "cogs.administration.server",
-                      "cogs.calendar"
-                      "cogs.custom_reactions",
+                      "cogs.calendar",
+                      #"cogs.custom_reactions",
                       "cogs.misc",
                       "cogs.help"]
 

@@ -1,9 +1,11 @@
 import asyncio
+import datetime
 import re
 from typing import Any, List, Union
 
 import discord
 from discord.ext import commands
+from dateutil import parser
 
 from libs.config import config
 
@@ -147,3 +149,27 @@ def mc_to_md(text: str):
             s += stack.pop()
         lines.append(s)
     return "\n".join(lines)
+
+
+def str_to_stamp(*date: str):
+    """
+    Converts the string given to a timestamp
+    :param date: the string that will be converted
+    :return: returns the timestamp for the strings
+    """
+    all_strings = ""
+    for string in date:
+        all_strings += f"{string} "
+    parsed = parser.parse(all_strings, dayfirst=True)
+    timestamp = datetime.datetime.timestamp(parsed)
+    return timestamp
+
+
+def stamp_to_str(time_stamp: float):
+    """
+    Converts the timestamp into a string in format: "day-month-year | hour:minute:seconds"
+    :param time_stamp:
+    :return: String out of the datetime object
+    """
+    readable = datetime.datetime.fromtimestamp(time_stamp).strftime("%d-%b-%Y | %H:%M:%S")
+    return readable
