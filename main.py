@@ -35,7 +35,7 @@ bot.remove_command('help')
 
 initial_extensions = ["cogs.search",
                       "cogs.unitedmc",
-                      #"cogs.administration.protection",
+                      "cogs.administration.protection",
                       "cogs.administration.administration",
                       "cogs.administration.filters",
                       "cogs.administration.moderation",
@@ -44,7 +44,7 @@ initial_extensions = ["cogs.search",
                       "cogs.administration.punishments",
                       "cogs.administration.server",
                       "cogs.calendar",
-                      #"cogs.custom_reactions",
+                      "cogs.custom_reactions",
                       "cogs.misc",
                       "cogs.help"]
 

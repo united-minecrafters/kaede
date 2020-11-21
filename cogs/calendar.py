@@ -3,7 +3,7 @@ import logging
 import datetime as dt
 import pytz
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 import aiosqlite
 import discord
@@ -147,7 +147,7 @@ class Misc(commands.Cog):
                 await guild.get_channel(channel).send(f"<@&{event.role_id}>", embed=embed)
                 event.sent = 1
                 async with aiosqlite.connect("calendar.db") as db:
-                    await db.execute("""UPDATE events SET sent=? 
+                    await db.execute("""UPDATE events SET sent=?
                                         WHERE userid=? AND date_start=? AND date_end=? AND name=?""",
                                      (1, event.userid, event.date_start, event.date_end, event.name))
 
@@ -158,7 +158,7 @@ class Misc(commands.Cog):
             if utc > date_end:
                 self.events.remove(event)
                 async with aiosqlite.connect("calendar.db") as db:
-                    await db.execute("""DELETE FROM events 
+                    await db.execute("""DELETE FROM events
                                         WHERE userid=? AND date_start=? AND date_end=? AND name=?""",
                                      (event.userid, event.date_start, event.date_end, event.name))
                     await db.commit()
@@ -194,7 +194,7 @@ class Misc(commands.Cog):
                              date_end=date_end, timezone=user_tz)
         self.availabilities.append(avail)
         async with aiosqlite.connect("calendar.db") as db:
-            await db.execute("""INSERT INTO availabilities (userid, date_start, date_end, timezone) 
+            await db.execute("""INSERT INTO availabilities (userid, date_start, date_end, timezone)
                                 VALUES (?,?,?,?)""",
                              (ctx.author.id, date_start, date_end, user_tz,))
             await db.commit()
@@ -247,8 +247,8 @@ class Misc(commands.Cog):
             if confirmation.confirmed:
                 await confirmation.update("Confirmed", color=0x55ff55)
                 for avail in self.availabilities:
-                    if (stamp_to_str(avail.date_start) + " - " + stamp_to_str(avail.date_end)
-                            == multiple_choice.choice and avail.userid == ctx.author.id):
+                    if (stamp_to_str(avail.date_start) + " - " + stamp_to_str(avail.date_end) ==
+                            multiple_choice.choice and avail.userid == ctx.author.id):
                         self.availabilities.remove(avail)
                         async with aiosqlite.connect("calendar.db") as db:
                             await db.execute(
@@ -284,8 +284,8 @@ class Misc(commands.Cog):
         """
         if date is None:
             gen_week = [
-                (ctx.guild.get_member(avail.userid).display_name + ":\n" + stamp_to_str(avail.date_start) + " - "
-                 + stamp_to_str(avail.date_end))
+                (ctx.guild.get_member(avail.userid).display_name + ":\n" + stamp_to_str(avail.date_start) + " - " +
+                 stamp_to_str(avail.date_end))
                 for avail in self.availabilities
                 if (dt.datetime.fromtimestamp(avail.date_start) < dt.datetime.utcnow() + dt.timedelta(weeks=1))
             ]
@@ -293,11 +293,11 @@ class Misc(commands.Cog):
                                                 title='Availabilities for this week'))).run()
         else:
             gen_date = [
-                (ctx.guild.get_member(avail.userid).display_name + ":\n" + stamp_to_str(avail.date_start) + " - "
-                 + stamp_to_str(avail.date_end))
+                (ctx.guild.get_member(avail.userid).display_name + ":\n" + stamp_to_str(avail.date_start) + " - " +
+                 stamp_to_str(avail.date_end))
                 for avail in self.availabilities
-                if (dt.datetime.fromtimestamp(avail.date_start).strftime("%Y-%m-%d")
-                    == parse(date, dayfirst=True).strftime("%Y-%m-%d"))
+                if (dt.datetime.fromtimestamp(avail.date_start).strftime("%Y-%m-%d") ==
+                    parse(date, dayfirst=True).strftime("%Y-%m-%d"))
             ]
             await (BotEmbedPaginator(ctx, pages(numbered(
                 gen_date),
