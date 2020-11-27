@@ -5,7 +5,6 @@ channels:
   rules: 600014362719158297
   roles: 603028701730308135
   polls: 605457435288797248
-  suggestions: 599977968504274964
   mcupdates: 637001831687520275
   unverified: 691510005664448552
 
@@ -73,6 +72,7 @@ roles:
   jr_mod: &JR_MOD_ROLE 608784604588933130
   booster: 669584239301492748
   muted: &MUTED_ROLE 599966894069514251
+  operator: 639188272609886220
 
 prefixes:
 - &KAEDE_PREFIX '!'
@@ -158,21 +158,71 @@ filters:
   - *STAFF_ROLE
 
   guild_invite_whitelist:
-  - 586199960198971409   # united
-  - 673045897172746260   # autumn
-  - 523136895245615124   # sturdy
+  - 586199960198971409     # united
+  - 673045897172746260     # autumn
+  - 523136895245615124     # sturdy
+
+automod:
+  punishment:
+    role: *MUTED_ROLE
+    duration: 15
+  burst:
+    interval: 10
+    number: 8
 
 logging:
   ignore_del_prefix:
-  - .     # nadeko
-  - '%'   # ansura
+  - .       # nadeko
+  - '%'     # ansura
   - *KAEDE_PREFIX
   ignore_bot: 1
 
 delete_exceptions:
 - *BOT
 - *ADMIN_BOT
+- *KAEDE
 
 statuses:
 - Hi
 status_cycle: 120
+
+categories:
+- &GENERAL_CAT 586199960198971413
+- &NOMIC_CAT 609139768520867858
+- &MEDIA_CAT 630954461191471115
+- &ADMIN_CAT 599966537272786986
+- &BOT_CAT 599975865463472131
+- &SERVERS_CAT 641335775371198475
+- &INFO_CAT 602953266728271921
+
+restricted_categories:
+- *INFO_CAT
+- *ADMIN_CAT
+
+autokick: 0
+
+colors:
+  log_message: 0xfffff
+  edit: 0x0000ff
+  filter: 0xffff00
+  delete: 0x880000
+  user: 0x008800
+  kick: 0x555500
+  mute: 0xff00ff
+  warn: 0x005555
+  ban: 0x005555
+
+emojis:
+  delete: ':wastebasket:'
+  edit: ':pencil:'
+  filter: ':warning:'
+  user_join: ':smile:'
+  user_leave: ':frowning:'
+  mute: ':shushing_face:'
+  unmute: ':loudspeaker:'
+  softban: ':shushing_face:'
+  ban: ':no_entry_sign:'
+  unban: ':green_circle:'
+  autokick_on: <:shield_negative:733538765150093372>
+  autokick_off: <:shield_positive:733538764961480735>
+

@@ -1,0 +1,4 @@
+hello	hi %user.mention%
+hello	helloooooooo
+hello	hihihihihihi
+test	%user.mention% %user% %guild%
