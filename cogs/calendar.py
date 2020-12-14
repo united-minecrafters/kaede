@@ -21,10 +21,6 @@ def sanitize(s):
     return escape_mentions(escape_markdown(s))
 
 
-# TODO Change all dates to timestamps :b
-# TODO Add optional role @ing for events
-
-
 sql_string_avails_table = """CREATE TABLE IF NOT EXISTS availabilities (
                              userid INTEGER,
                              date_start REAL,
@@ -120,7 +116,7 @@ class Misc(commands.Cog):
         logging.info("[CAL] Ready")
 
     @tasks.loop(seconds=10)
-    async def end_check(self):  # TODO Update to timestamp system
+    async def end_check(self):
         for avail in self.availabilities:
             offset = dt.datetime.now(pytz.timezone(avail.timezone)).utcoffset().total_seconds()
             utc = dt.datetime.utcnow() + dt.timedelta(seconds=offset)
