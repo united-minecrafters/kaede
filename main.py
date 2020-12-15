@@ -44,7 +44,7 @@ initial_extensions = ["cogs.search",
                       "cogs.administration.punishments",
                       "cogs.administration.server",
                       "cogs.calendar",
-                      # "cogs.custom_reactions",
+                      "cogs.custom_reactions",
                       "cogs.misc",
                       "cogs.help"]
 
