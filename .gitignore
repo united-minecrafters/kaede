@@ -135,3 +135,5 @@ config.yaml
 *.db
 
 configs/
+
+.idea/
