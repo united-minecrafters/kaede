@@ -1,4 +1,5 @@
 import aiohttp
+import asyncio
 import logging
 import datetime as dt
 import pytz
@@ -19,10 +20,6 @@ from libs.config import config
 
 def sanitize(s):
     return escape_mentions(escape_markdown(s))
-
-
-# TODO Change all dates to timestamps :b
-# TODO Add optional role @ing for events
 
 
 sql_string_avails_table = """CREATE TABLE IF NOT EXISTS availabilities (
@@ -68,15 +65,11 @@ class Misc(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.modlog: Optional[cogs.administration.modlog.ModLog] = None
-
+        self.lock = asyncio.Lock()
         self.events = []
-
         self.timezones: Dict[int, str] = {}
-
         self.availabilities = []
-
         bot.loop.create_task(self._init())
-
         self.end_check.start()
 
     async def _init(self):
@@ -120,17 +113,20 @@ class Misc(commands.Cog):
         logging.info("[CAL] Ready")
 
     @tasks.loop(seconds=10)
-    async def end_check(self):  # TODO Update to timestamp system
-        for avail in self.availabilities:
-            offset = dt.datetime.now(pytz.timezone(avail.timezone)).utcoffset().total_seconds()
-            utc = dt.datetime.utcnow() + dt.timedelta(seconds=offset)
-            date_end = dt.datetime.fromtimestamp(avail.date_end)
-            if utc > date_end:
-                self.availabilities.remove(avail)
-                async with aiosqlite.connect("calendar.db") as db:
-                    await db.execute("""DELETE FROM availabilities WHERE userid=? AND date_start=? AND date_end=?""",
-                                     (avail.userid, avail.date_start, avail.date_end))
-                    await db.commit()
+    async def end_check(self):  # TODO: Improve removing from list
+        async with self.lock:
+            for n, avail in enumerate(self.availabilities):
+                offset = dt.datetime.now(pytz.timezone(avail.timezone)).utcoffset().total_seconds()
+                utc = dt.datetime.utcnow() + dt.timedelta(seconds=offset)
+                date_end = dt.datetime.fromtimestamp(avail.date_end)
+                if utc > date_end:
+                    async with aiosqlite.connect("calendar.db") as db:
+                        await db.execute(
+                            """DELETE FROM availabilities WHERE userid=? AND date_start=? AND date_end=?""",
+                            (avail.userid, avail.date_start, avail.date_end))
+                        await db.commit()
+                    self.availabilities[n] = None
+            self.availabilities = [avail for avail in self.availabilities if avail is not None]
 
         for event in self.events:
             guild = self.bot.get_guild(736712134142066810)
@@ -150,18 +146,21 @@ class Misc(commands.Cog):
                     await db.execute("""UPDATE events SET sent=?
                                         WHERE userid=? AND date_start=? AND date_end=? AND name=?""",
                                      (1, event.userid, event.date_start, event.date_end, event.name))
-
-        for event in self.events:
-            offset = dt.datetime.now(pytz.timezone(event.timezone)).utcoffset().total_seconds()
-            utc = dt.datetime.utcnow() + dt.timedelta(seconds=offset)
-            date_end = dt.datetime.fromtimestamp(event.date_end)
-            if utc > date_end:
-                self.events.remove(event)
-                async with aiosqlite.connect("calendar.db") as db:
-                    await db.execute("""DELETE FROM events
-                                        WHERE userid=? AND date_start=? AND date_end=? AND name=?""",
-                                     (event.userid, event.date_start, event.date_end, event.name))
                     await db.commit()
+
+        async with self.lock:
+            for n, event in enumerate(self.events):
+                offset = dt.datetime.now(pytz.timezone(event.timezone)).utcoffset().total_seconds()
+                utc = dt.datetime.utcnow() + dt.timedelta(seconds=offset)
+                date_end = dt.datetime.fromtimestamp(event.date_end)
+                if utc > date_end:
+                    async with aiosqlite.connect("calendar.db") as db:
+                        await db.execute("""DELETE FROM events
+                                            WHERE userid=? AND date_start=? AND date_end=? AND name=?""",
+                                         (event.userid, event.date_start, event.date_end, event.name))
+                        await db.commit()
+                        self.events[n] = None
+                self.events = [event for event in self.events if event is not None]
 
     @commands.command(name="availability", aliases=["avail"])
     async def set_availability(self, ctx: commands.Context, date: str, start: str, end: str):
@@ -192,7 +191,8 @@ class Misc(commands.Cog):
         date_end = str_to_stamp(date, end)
         avail = Availability(userid=ctx.author.id, date_start=date_start,
                              date_end=date_end, timezone=user_tz)
-        self.availabilities.append(avail)
+        async with self.lock:
+            self.availabilities.append(avail)
         async with aiosqlite.connect("calendar.db") as db:
             await db.execute("""INSERT INTO availabilities (userid, date_start, date_end, timezone)
                                 VALUES (?,?,?,?)""",
@@ -246,15 +246,17 @@ class Misc(commands.Cog):
             await confirmation.confirm(f"Are you sure you want to delete {multiple_choice.choice}?")
             if confirmation.confirmed:
                 await confirmation.update("Confirmed", color=0x55ff55)
-                for avail in self.availabilities:
-                    if (stamp_to_str(avail.date_start) + " - " + stamp_to_str(avail.date_end) ==
-                            multiple_choice.choice and avail.userid == ctx.author.id):
-                        self.availabilities.remove(avail)
-                        async with aiosqlite.connect("calendar.db") as db:
-                            await db.execute(
-                                """DELETE FROM availabilities WHERE userid=? AND date_start=? AND date_end=?""",
-                                (ctx.author.id, avail.date_start, avail.date_end))
-                            await db.commit()
+                async with self.lock:
+                    for n, avail in enumerate(self.availabilities):
+                        if (stamp_to_str(avail.date_start) + " - " + stamp_to_str(avail.date_end) ==
+                                multiple_choice.choice and avail.userid == ctx.author.id):
+                            self.availabilities[n] = None
+                            async with aiosqlite.connect("calendar.db") as db:
+                                await db.execute(
+                                    """DELETE FROM availabilities WHERE userid=? AND date_start=? AND date_end=?""",
+                                    (ctx.author.id, avail.date_start, avail.date_end))
+                                await db.commit()
+                    self.availabilities = [avail for avail in self.availabilities if avail is not None]
             else:
                 await confirmation.update("Not confirmed", hide_author=True, color=0xFF0000)
 
@@ -346,7 +348,8 @@ class Misc(commands.Cog):
                           date_end=date_end, timezone=user_tz,
                           name=name, channel_id=channel.id,
                           role_id=role.id if role else None, sent=0)
-            self.events.append(event)
+            async with self.lock:
+                self.events.append(event)
             async with aiosqlite.connect("calendar.db") as db:
                 await db.execute(
                     """INSERT INTO events
@@ -378,14 +381,16 @@ class Misc(commands.Cog):
             await confirmation.confirm(f"Are you sure you want to delete {multiple_choice.choice}?")
             if confirmation.confirmed:
                 await confirmation.update("Confirmed", color=0x55ff55)
-                for event in self.events:
-                    if event.name == multiple_choice.choice:
-                        self.events.remove(event)
-                        async with aiosqlite.connect("calendar.db") as db:
-                            await db.execute(
-                                """DELETE FROM events WHERE date_start=? AND date_end=? AND name=?""",
-                                (event.date_start, event.date_end, event.name))
-                            await db.commit()
+                async with self.lock:
+                    for n, event in enumerate(self.events):
+                        if event.name == multiple_choice.choice:
+                            self.events[n] = None
+                            async with aiosqlite.connect("calendar.db") as db:
+                                await db.execute(
+                                    """DELETE FROM events WHERE date_start=? AND date_end=? AND name=?""",
+                                    (event.date_start, event.date_end, event.name))
+                                await db.commit()
+                    self.events = [event for event in self.events if event is not None]
             else:
                 await confirmation.update("Not confirmed", hide_author=True, color=0xFF0000)
 
