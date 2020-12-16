@@ -113,7 +113,7 @@ class Misc(commands.Cog):
         logging.info("[CAL] Ready")
 
     @tasks.loop(seconds=10)
-    async def end_check(self):  # TODO: Improve removing from list
+    async def end_check(self):
         async with self.lock:
             for n, avail in enumerate(self.availabilities):
                 offset = dt.datetime.now(pytz.timezone(avail.timezone)).utcoffset().total_seconds()
@@ -129,7 +129,7 @@ class Misc(commands.Cog):
             self.availabilities = [avail for avail in self.availabilities if avail is not None]
 
         for event in self.events:
-            guild = self.bot.get_guild(736712134142066810)
+            guild = self.bot.get_guild(586199960198971409)
             offset = dt.datetime.now(pytz.timezone(event.timezone)).utcoffset().total_seconds()
             utc = dt.datetime.utcnow() + dt.timedelta(seconds=offset)
             date_start = dt.datetime.fromtimestamp(event.date_start)
